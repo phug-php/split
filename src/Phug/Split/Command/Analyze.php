@@ -31,7 +31,20 @@ class Analyze implements Command
      */
     public $composerFile = 'composer.json';
 
+    /**
+     * Last AST of projects.
+     *
+     * @var array
+     */
+    protected $ast;
+
     public function run(SimpleCli $cli): bool
+    {
+        return $this->calculatePackagesTree($cli) &&
+            $this->dumpPackagesTree($cli, $this->ast);
+    }
+
+    protected function calculatePackagesTree(SimpleCli $cli): bool
     {
         chdir($this->directory);
 
@@ -45,7 +58,7 @@ class Analyze implements Command
         $vendorDirectory = ($data['config'] ?? [])['vendor-dir'] ?? 'vendor';
 
         $cli->writeLine($data['name']);
-        $ast = $this->mapDirectories('.', function (string $path, string $element) use ($vendorDirectory) {
+        $this->ast = $this->mapDirectories('.', function (string $path, string $element) use ($vendorDirectory) {
             if ($element === $vendorDirectory) {
                 return;
             }
@@ -53,12 +66,10 @@ class Analyze implements Command
             return $this->scanDirectories($path);
         });
 
-        $this->dumpPackagesTree($cli, $ast);
-
         return true;
     }
 
-    protected function dumpPackagesTree(SimpleCli $cli, iterable $ast, int $level = 0)
+    protected function dumpPackagesTree(SimpleCli $cli, iterable $ast, int $level = 0): bool
     {
         $packages = is_array($ast) ? $ast : iterator_to_array($ast);
         $count = count($packages);
@@ -68,6 +79,8 @@ class Analyze implements Command
             $cli->writeLine(str_repeat('   ', $level).' '.$symbol.' '.$package['name'], 'light_cyan');
             $this->dumpPackagesTree($cli, $package['children']);
         }
+
+        return true;
     }
 
     protected function mapDirectories(string $directory, callable $callback): iterable
@@ -97,9 +110,9 @@ class Analyze implements Command
         $composerPath = $directory.DIRECTORY_SEPARATOR.$this->composerFile;
 
         if (file_exists($composerPath)) {
-            $data = json_decode(file_get_contents($composerPath));
+            $data = json_decode(file_get_contents($composerPath), true);
             $mainPackage = [
-                'name' => $data->name,
+                'name' => $data['name'],
                 'children' => [],
             ];
         }
