@@ -2,6 +2,7 @@
 
 namespace Phug\Split\Command;
 
+use Phug\Split;
 use SimpleCli\Command;
 use SimpleCli\Options\Help;
 use SimpleCli\SimpleCli;
@@ -39,13 +40,18 @@ class Analyze implements Command
      */
     protected $ast;
 
+    /**
+     * @param Split $cli
+     *
+     * @return bool
+     */
     public function run(SimpleCli $cli): bool
     {
         return $this->calculatePackagesTree($cli) &&
             $this->dumpPackagesTree($cli, $this->getPackages());
     }
 
-    protected function calculatePackagesTree(SimpleCli $cli): bool
+    protected function calculatePackagesTree(Split $cli): bool
     {
         chdir($this->directory);
 
@@ -79,7 +85,7 @@ class Analyze implements Command
         return $this->ast;
     }
 
-    protected function dumpPackagesTree(SimpleCli $cli, iterable $packages, int $level = 0): bool
+    protected function dumpPackagesTree(Split $cli, iterable $packages, int $level = 0): bool
     {
         $count = count($packages);
 
@@ -113,6 +119,14 @@ class Analyze implements Command
         }
     }
 
+    protected function getPackage(string $directory, array $data): array
+    {
+        return [
+            'name' => $data['name'],
+            'children' => [],
+        ];
+    }
+
     protected function scanDirectories(string $directory): iterable
     {
         $mainPackage = null;
@@ -120,10 +134,7 @@ class Analyze implements Command
 
         if (file_exists($composerPath)) {
             $data = json_decode(file_get_contents($composerPath), true);
-            $mainPackage = [
-                'name' => $data['name'],
-                'children' => [],
-            ];
+            $mainPackage = $this->getPackage($directory, $data);
         }
 
         foreach ($this->mapDirectories($directory, function (string $path) {
