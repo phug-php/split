@@ -30,8 +30,9 @@ class Dist extends Analyze
 
         if (is_dir($this->output)) {
             $dir = new RecursiveDirectoryIterator($this->output, RecursiveDirectoryIterator::SKIP_DOTS);
+            $dir = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
 
-            foreach (new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST) as $filename => $file) {
+            foreach ($dir as $filename => $file) {
                 is_file($filename)
                     ? unlink($filename)
                     : rmdir($filename);
@@ -45,10 +46,13 @@ class Dist extends Analyze
         preg_match('/^\* (.+)$/m', shell_exec('git branch'), $branch);
         $branch = $branch[1];
 
-        foreach ($this->ast as $package) {
+        foreach ($this->getPackages() as $package) {
             chdir($this->directory);
 
             $name = $package['name'];
+
+            $cli->writeLine("Build $name", 'light_purple');
+
             $data = json_decode(file_get_contents("https://repo.packagist.org/p/$name.json"), true);
             $config = $data['packages'][$name] ?? [];
             $config = $config['dev-master'] ?? next($config);
@@ -62,13 +66,17 @@ class Dist extends Analyze
             $url = $config['source']['url'];
             $directory = $this->output."/$name";
 
-            $cli->writeLine(shell_exec("git clone $url $directory") ?: "Error during cloning of $name");
+            $cli->writeLine("git clone $url $directory", 'light_green');
+            shell_exec("git clone $url $directory");
 
             chdir($directory);
 
             $option = preg_match('/^[0-9a-f]+$/i', trim(shell_exec("git rev-parse --verify $branch 2> /dev/null") ?: '')) ? '' : ' -b';
-            $cli->writeLine(shell_exec("git checkout$option $branch") ?: "Error when switching on $branch branch of $name");
+            $cli->writeLine("git checkout$option $branch", 'light_green');
+            shell_exec("git checkout$option $branch");
         }
+
+        $cli->writeLine('Build distributed in '.$this->output, 'light_purple');
 
         return true;
     }

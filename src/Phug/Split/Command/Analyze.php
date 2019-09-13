@@ -5,6 +5,7 @@ namespace Phug\Split\Command;
 use SimpleCli\Command;
 use SimpleCli\Options\Help;
 use SimpleCli\SimpleCli;
+use Traversable;
 
 /**
  * Compare master repository to sub-repositories.
@@ -34,14 +35,14 @@ class Analyze implements Command
     /**
      * Last AST of projects.
      *
-     * @var array
+     * @var array[]
      */
     protected $ast;
 
     public function run(SimpleCli $cli): bool
     {
         return $this->calculatePackagesTree($cli) &&
-            $this->dumpPackagesTree($cli, $this->ast);
+            $this->dumpPackagesTree($cli, $this->getPackages());
     }
 
     protected function calculatePackagesTree(SimpleCli $cli): bool
@@ -60,7 +61,7 @@ class Analyze implements Command
         $cli->writeLine($data['name']);
         $this->ast = $this->mapDirectories('.', function (string $path, string $element) use ($vendorDirectory) {
             if ($element === $vendorDirectory) {
-                return;
+                return null;
             }
 
             return $this->scanDirectories($path);
@@ -69,9 +70,17 @@ class Analyze implements Command
         return true;
     }
 
-    protected function dumpPackagesTree(SimpleCli $cli, iterable $ast, int $level = 0): bool
+    protected function getPackages(): iterable
     {
-        $packages = is_array($ast) ? $ast : iterator_to_array($ast);
+        if ($this->ast instanceof Traversable) {
+            $this->ast = iterator_to_array($this->ast);
+        }
+
+        return $this->ast;
+    }
+
+    protected function dumpPackagesTree(SimpleCli $cli, iterable $packages, int $level = 0): bool
+    {
         $count = count($packages);
 
         foreach ($packages as $index => $package) {
