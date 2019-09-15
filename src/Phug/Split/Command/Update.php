@@ -6,6 +6,7 @@ use Exception;
 use Phug\Split;
 use Phug\Split\Git\Author;
 use Phug\Split\Git\Commit;
+use Phug\Split\Git\EmptyLogList;
 use Phug\Split\Git\Log;
 
 /**
@@ -14,7 +15,7 @@ use Phug\Split\Git\Log;
 class Update extends Dist
 {
     /**
-     * @option
+     * @option n, no-push
      *
      * Do not push the replayed commits.
      *
@@ -23,7 +24,7 @@ class Update extends Dist
     public $noPush = false;
 
     /**
-     * @option
+     * @option m, maximum-commits-replay
      *
      * Maximum number of commits to replay.
      *
@@ -32,7 +33,7 @@ class Update extends Dist
     public $maximumCommitsReplay = 20;
 
     /**
-     * @option
+     * @option p, hash-prefix
      *
      * Prefix to put before a commit hash to link a split commit to the original commit.
      *
@@ -132,45 +133,50 @@ class Update extends Dist
             ? parse_ini_file('.git/config', true)['user'] ?? []
             : [];
 
-        chdir($sourceDirectory);
+        $cli->chdir($sourceDirectory);
         $this->git('stash');
 
-        $log = $hash ? $this->getReplayLog($cli, $hash) : $this->latest(1, '.');
+        try {
+            $log = $hash ? $this->getReplayLog($cli, $hash) : $this->latest(1, '.');
 
-        foreach ($log as $commit) {
-            chdir($sourceDirectory);
-            $hash = $commit->getHash();
-            $this->git("checkout -f $hash");
-            rename("$distributionDirectory/.git", $this->output.'/.git.temp');
-            $this->remove($distributionDirectory);
-            shell_exec('cp -r . '.escapeshellarg($distributionDirectory));
-            $this->remove("$distributionDirectory/.git");
-            rename($this->output.'/.git.temp', "$distributionDirectory/.git");
-            chdir($distributionDirectory);
-            $this->setGitCommitter($commit->getCommit()->getAuthor());
-            $author = $commit->getAuthor();
+            foreach ($log as $commit) {
+                $cli->chdir($sourceDirectory);
+                $hash = $commit->getHash();
+                $this->git('config advice.detachedHead false');
+                $this->git("checkout -f $hash");
+                rename("$distributionDirectory/.git", $this->output.'/.git.temp');
+                $this->remove($distributionDirectory);
+                shell_exec('cp -r . '.escapeshellarg($distributionDirectory));
+                $this->remove("$distributionDirectory/.git");
+                rename($this->output.'/.git.temp', "$distributionDirectory/.git");
+                $cli->chdir($distributionDirectory);
+                $this->setGitCommitter($commit->getCommit()->getAuthor());
+                $author = $commit->getAuthor();
 
-            $this->git('add .');
-            $this->git('commit', [
-                'message' => $commit->getMessage()."\n\n".$this->hashPrefix.$hash,
-                'author' => $author,
-                'date' => $author->getDate(),
-            ]);
+                $this->git('add .');
+                $this->git('commit', [
+                    'message' => $commit->getMessage()."\n\n".$this->hashPrefix.$hash,
+                    'author' => $author,
+                    'date' => $author->getDate(),
+                ], '2>&1');
 
-            if (!$this->noPush) {
-                $name = $package['name'];
-                $cli->writeLine("Pushing $name\n".$this->git("push origin $branch"), 'light_cyan');
+                if (!$this->noPush) {
+                    $name = $package['name'];
+                    $cli->writeLine("Pushing $name\n".$this->git("push origin $branch"), 'light_cyan');
+                }
+
+                foreach (['name', 'email'] as $userConfig) {
+                    $config = empty($localUser[$userConfig])
+                        ? "--unset user.$userConfig"
+                        : "user.$userConfig ".$this->gitEscape($localUser[$userConfig]);
+                    $this->git('config '.$config);
+                }
             }
-
-            foreach (['name', 'email'] as $userConfig) {
-                $config = empty($localUser[$userConfig])
-                    ? "--unset user.$userConfig"
-                    : "user.$userConfig ".$this->gitEscape($localUser[$userConfig]);
-                $this->git('config '.$config);
-            }
+        } catch (EmptyLogList $exception) {
+            $cli->writeLine($package['name'].' is already up to date.', 'green');
         }
 
-        chdir($sourceDirectory);
+        $cli->chdir($sourceDirectory);
 
         $this->git("checkout -f $branch");
         $this->git('stash pop');

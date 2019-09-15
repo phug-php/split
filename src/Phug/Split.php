@@ -43,4 +43,15 @@ class Split extends SimpleCli
 
         return false;
     }
+
+    public function chdir($directory): bool
+    {
+        if ($directory !== getcwd()) {
+            $this->writeLine("cd $directory", 'light_blue');
+
+            return chdir($directory);
+        }
+
+        return true;
+    }
 }

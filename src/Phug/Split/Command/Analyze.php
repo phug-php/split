@@ -25,7 +25,7 @@ class Analyze implements Command
     public $directory = '.';
 
     /**
-     * @option
+     * @option c, composer-file
      *
      * Composer file name.
      *
@@ -47,19 +47,19 @@ class Analyze implements Command
      */
     public function run(SimpleCli $cli): bool
     {
-        $this->directory = realpath($this->directory);
-
-        if (!$this->directory) {
-            return $cli->error('Input directory not found.');
-        }
-
         return $this->calculatePackagesTree($cli) &&
             $this->dumpPackagesTree($cli, $this->getPackages());
     }
 
     protected function calculatePackagesTree(Split $cli): bool
     {
-        chdir($this->directory);
+        $this->directory = realpath($this->directory);
+
+        if (!$this->directory) {
+            return $cli->error('Input directory not found.');
+        }
+
+        $cli->chdir($this->directory);
 
         if (!file_exists($this->composerFile)) {
             return $cli->error('Root project directory should contains a '.$this->composerFile.' file.');

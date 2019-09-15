@@ -53,13 +53,15 @@ class Commit
      */
     public static function fromGitLogString(string $log): self
     {
-        if (!preg_match('/^'.implode('[\n\r]+', [
+        $log = str_replace(["\r\n", "\r"], "\n", $log);
+
+        if (!preg_match('/^'.implode('\n', [
             'commit (?<hash>\S+)[\S\s]*',
             'Author:     (?<authorName>[^<]+)<(?<authorEmail>[^>]+)>(?: .*)?',
             'AuthorDate: (?<authorDate>.+)',
             'Commit:     (?<commitName>[^<]+)<(?<commitEmail>[^>]+)>(?: .*)?',
             'CommitDate: (?<commitDate>.+)',
-            '[\S\s]*    (?<message>[\S\s]+)',
+            '(?:.+\n)*\n    (?<message>[\S\s]+)',
         ]).'$/', $log, $matches)) {
             throw new InvalidGitLogStringException($log);
         }

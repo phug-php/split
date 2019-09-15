@@ -5,6 +5,7 @@ namespace Phug\Split\Command;
 use Phug\Split;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SimpleCli\Options\Verbose;
 use SimpleCli\SimpleCli;
 
 /**
@@ -12,6 +13,8 @@ use SimpleCli\SimpleCli;
  */
 class Dist extends Analyze
 {
+    use Verbose;
+
     /**
      * @argument
      *
@@ -22,7 +25,7 @@ class Dist extends Analyze
     public $output = 'dist';
 
     /**
-     * @option
+     * @option g, git-program
      *
      * Git binary program path.
      *
@@ -38,6 +41,13 @@ class Dist extends Analyze
     public function run(SimpleCli $cli): bool
     {
         return $this->distribute($cli);
+    }
+
+    protected function info(Split $cli, string $message): void
+    {
+        if ($this->verbose) {
+            $cli->writeLine($message, 'brown');
+        }
     }
 
     protected function remove(string $fileOrDirectory): bool
@@ -67,13 +77,29 @@ class Dist extends Analyze
         return "$'".addcslashes($value, "'\\")."'";
     }
 
-    protected function git(string $command, array $options = []): ?string
+    protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
     {
         foreach ($options as $name => $value) {
             $command .= ' --'.$name.'='.$this->gitEscape($value);
         }
 
-        return shell_exec($this->gitProgram.' '.$command);
+        return $this->gitProgram.' '.$command.($redirect ? ' '.$redirect : '');
+    }
+
+    protected function git(string $command, array $options = [], string $redirect = null): ?string
+    {
+        $command = $this->getGitCommand($command, $options, $redirect);
+
+        if (strpos($command, '$\'') === false) {
+            return shell_exec($command);
+        }
+
+        $script = sys_get_temp_dir().'/script.sh';
+        file_put_contents($script, "#!/bin/sh\n".$command);
+        $output = shell_exec(escapeshellcmd($script).($redirect ? ' '.$redirect : ''));
+        unlink($script);
+
+        return $output;
     }
 
     protected function distribute(Split $cli): bool
@@ -83,6 +109,7 @@ class Dist extends Analyze
         }
 
         $this->remove($this->output);
+        $cli->chdir($this->directory);
         @mkdir($this->output, 0777, true);
         $this->output = @realpath($this->output);
 
@@ -107,7 +134,7 @@ class Dist extends Analyze
 
     protected function distributePackage(Split $cli, array $package, string $branch): bool
     {
-        chdir($this->directory);
+        $cli->chdir($this->directory);
 
         $name = $package['name'];
 
@@ -129,9 +156,11 @@ class Dist extends Analyze
         $this->git("clone $url $directory");
         $cli->ungray();
 
-        chdir($directory);
+        $cli->chdir($directory);
 
-        $branchRevision = trim($this->git("rev-parse --verify $branch 2> /dev/null") ?: '');
+        $this->info($cli, "git rev-parse --verify origin/$branch");
+        $branchRevision = trim($this->git("rev-parse --verify origin/$branch", [], '2>&1') ?: '');
+        $this->info($cli, ' => '.($branchRevision === '' ? 'no revision' : $branchRevision));
         $option = preg_match('/^[0-9a-f]+$/i', $branchRevision) ? '' : ' -b';
         $cli->writeLine("git checkout$option $branch", 'light_green');
         $cli->gray();
