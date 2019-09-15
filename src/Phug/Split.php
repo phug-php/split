@@ -29,4 +29,18 @@ class Split extends SimpleCli
     {
         $this->write($this->escapeCharacter.'[0m');
     }
+
+    public function error(string $error): bool
+    {
+        $this->writeLine($error, 'red');
+
+        return false;
+    }
+
+    public function warning(string $error): bool
+    {
+        $this->writeLine($error, 'yellow');
+
+        return false;
+    }
 }

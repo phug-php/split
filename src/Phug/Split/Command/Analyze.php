@@ -47,6 +47,12 @@ class Analyze implements Command
      */
     public function run(SimpleCli $cli): bool
     {
+        $this->directory = realpath($this->directory);
+
+        if (!$this->directory) {
+            return $cli->error('Input directory not found.');
+        }
+
         return $this->calculatePackagesTree($cli) &&
             $this->dumpPackagesTree($cli, $this->getPackages());
     }
@@ -56,9 +62,7 @@ class Analyze implements Command
         chdir($this->directory);
 
         if (!file_exists($this->composerFile)) {
-            $cli->write('Root project directory should contains a '.$this->composerFile.' file.', 'red');
-
-            return false;
+            return $cli->error('Root project directory should contains a '.$this->composerFile.' file.');
         }
 
         $data = json_decode(file_get_contents($this->composerFile), true);

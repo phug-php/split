@@ -22,6 +22,15 @@ class Dist extends Analyze
     public $output = 'dist';
 
     /**
+     * @option
+     *
+     * Git binary program path.
+     *
+     * @var string
+     */
+    public $gitProgram = 'git';
+
+    /**
      * @param Split $cli
      *
      * @return bool
@@ -53,6 +62,20 @@ class Dist extends Analyze
         return false;
     }
 
+    protected function gitEscape(string $value): string
+    {
+        return "$'".addcslashes($value, "'\\")."'";
+    }
+
+    protected function git(string $command, array $options = []): ?string
+    {
+        foreach ($options as $name => $value) {
+            $command .= ' --'.$name.'='.$this->gitEscape($value);
+        }
+
+        return shell_exec($this->gitProgram.' '.$command);
+    }
+
     protected function distribute(Split $cli): bool
     {
         if (!$this->calculatePackagesTree($cli)) {
@@ -60,8 +83,17 @@ class Dist extends Analyze
         }
 
         $this->remove($this->output);
+        @mkdir($this->output, 0777, true);
+        $this->output = @realpath($this->output);
 
-        preg_match('/^\* (.+)$/m', shell_exec('git branch'), $branch);
+        if (!$this->output) {
+            return $cli->error('Unable to create output directory.');
+        }
+
+        if (!preg_match('/^\* (.+)$/m', $this->git('branch'), $branch)) {
+            return $cli->error('You must be on a branch to run this command.');
+        }
+
         $branch = $branch[1];
 
         foreach ($this->getPackages() as $package) {
@@ -86,9 +118,7 @@ class Dist extends Analyze
         $config = $config['dev-master'] ?? next($config);
 
         if (!isset($config['source']) || $config['source']['type'] !== 'git') {
-            $cli->writeLine("No git source found for the package $name", 'yellow');
-
-            return false;
+            $cli->warning("No git source found for the package $name");
         }
 
         $url = $config['source']['url'];
@@ -96,16 +126,16 @@ class Dist extends Analyze
 
         $cli->writeLine("git clone $url $directory", 'light_green');
         $cli->gray();
-        shell_exec("git clone $url $directory");
+        $this->git("clone $url $directory");
         $cli->ungray();
 
         chdir($directory);
 
-        $branchRevision = trim(shell_exec("git rev-parse --verify $branch 2> /dev/null") ?: '');
+        $branchRevision = trim($this->git("rev-parse --verify $branch 2> /dev/null") ?: '');
         $option = preg_match('/^[0-9a-f]+$/i', $branchRevision) ? '' : ' -b';
         $cli->writeLine("git checkout$option $branch", 'light_green');
         $cli->gray();
-        shell_exec("git checkout$option $branch");
+        $this->git("checkout$option $branch");
         $cli->ungray();
 
         return true;
