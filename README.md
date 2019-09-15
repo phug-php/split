@@ -1,26 +1,35 @@
+# Phug Split
 
-Phug
-========
+[![Latest Stable Version](https://img.shields.io/packagist/v/phug/split.svg?style=flat-square)](https://packagist.org/packages/phug/split)
+[![Build Status](https://img.shields.io/travis/phug-php/split/master.svg?style=flat-square)](https://travis-ci.org/phug-php/split)
 
-[![Latest Stable Version](https://poser.pugx.org/phug/phug/v/stable.png)](https://packagist.org/packages/phug/phug)
-[![Monthly Downloads](https://poser.pugx.org/phug/phug/d/monthly)](https://packagist.org/packages/phug/phug)
-[![Build Status](https://travis-ci.org/phug-php/phug.svg?branch=master)](https://travis-ci.org/phug-php/phug)
-[![Test Coverage](https://codeclimate.com/github/phug-php/phug/badges/coverage.svg)](https://codeclimate.com/github/phug-php/phug/coverage)
+**Split** is a tool to handle a mono-repo that can be downloaded as single package,
+multiple packages or both.
 
-[![Code Climate](https://codeclimate.com/github/phug-php/phug/badges/gpa.svg)](https://codeclimate.com/github/phug-php/phug)
-[![Issue Count](https://codeclimate.com/github/phug-php/phug/badges/issue_count.svg)](https://codeclimate.com/github/phug-php/phug)
-[![StyleCI](https://styleci.io/repos/74360844/shield?branch=master)](https://styleci.io/repos/74360844)
+## Install
 
-[Detailed status](https://gist.github.com/kylekatarnls/8720155b06b016f8128ff511b8695532)
+```shell script
+composer require phug/split
+```
 
-What is Phug?
------------------
+## Usage
 
-Phug is the PugJS Template Engine for PHP.
+Put **composer.json** files in sub-directory of a main package repository.
 
-Not just a port. It's written from scratch as a native PHP template engine.
+```shell script
+vendor/bin/split update
+```
 
-Documentation
-------------
+Check options with:
+```shell script
+vendor/bin/split update --help
+```
 
-https://www.phug-lang.com/
+Check other commands with:
+```shell script
+vendor/bin/split --help
+```
+
+## Example
+
+https://github.com/phug-php/phug
