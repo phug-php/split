@@ -34,6 +34,15 @@ class Dist extends Analyze
     public $gitProgram = 'git';
 
     /**
+     * @option git-credentials
+     *
+     * Git credentials.
+     *
+     * @var string
+     */
+    public $gitCredentials = '';
+
+    /**
      * @param Split $cli
      *
      * @return bool
@@ -157,6 +166,12 @@ class Dist extends Analyze
         $directory = $this->output."/$name";
 
         $cli->writeLine("git clone $url $directory", 'light_green');
+
+        if (strlen($this->gitCredentials)) {
+            [$protocol, $url] = explode('://', $url, 2);
+            $url = $protocol.'://'.$this->gitCredentials.'@'.$url;
+        }
+
         $cli->gray();
         $this->git("clone $url $directory");
         $cli->ungray();
