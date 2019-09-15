@@ -124,6 +124,10 @@ class Dist extends Analyze
 
         $branch = $branch[1];
 
+        if (substr($branch, 0, 18) === '(HEAD detached at ') {
+            $branch = trim(explode("\n", $this->git('describe --contains --all HEAD'))[0]);
+        }
+
         foreach ($this->getPackages() as $package) {
             $this->distributePackage($cli, $package, $branch);
         }
