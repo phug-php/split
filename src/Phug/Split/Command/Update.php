@@ -4,16 +4,18 @@ namespace Phug\Split\Command;
 
 use Exception;
 use Phug\Split;
+use Phug\Split\Command\Options\HashPrefix;
 use Phug\Split\Git\Author;
-use Phug\Split\Git\Commit;
 use Phug\Split\Git\EmptyLogList;
 use Phug\Split\Git\Log;
 
 /**
- * Compare master repository to sub-repositories.
+ * Replay commits from the mono-repository to the sub-packages repositories.
  */
 class Update extends Dist
 {
+    use HashPrefix;
+
     /**
      * @option n, no-push
      *
@@ -31,15 +33,6 @@ class Update extends Dist
      * @var int
      */
     public $maximumCommitsReplay = 20;
-
-    /**
-     * @option p, hash-prefix
-     *
-     * Prefix to put before a commit hash to link a split commit to the original commit.
-     *
-     * @var string
-     */
-    public $hashPrefix = 'split: ';
 
     protected function getPackage(string $directory, array $data): array
     {
@@ -81,35 +74,6 @@ class Update extends Dist
     }
 
     /**
-     * Return given count of latest commits as Log instance (collection of Commit instances).
-     *
-     * @param int    $count
-     * @param string $directory
-     *
-     * @throws Exception
-     *
-     * @return Log|Commit[]
-     */
-    protected function latest($count = 1, string $directory = ''): Log
-    {
-        return Log::fromGitLogString($this->git("log --pretty=fuller --max-count=$count $directory"));
-    }
-
-    /**
-     * Return the last commit.
-     *
-     * @param string $directory
-     *
-     * @throws Exception
-     *
-     * @return Commit
-     */
-    protected function last(string $directory = ''): Commit
-    {
-        return $this->latest(1, $directory)[0];
-    }
-
-    /**
      * @param Split $cli
      * @param array $package
      * @param string $branch
@@ -124,9 +88,7 @@ class Update extends Dist
             return false;
         }
 
-        $commit = $this->last();
-        $hash = $commit->findInMessage('/^'.preg_quote($this->hashPrefix).'(.+)$/m');
-
+        $hash = $this->getCurrentLinkedCommitHash();
         $distributionDirectory = getcwd();
         $sourceDirectory = $package['directory'];
         $localUser = file('.git/config')

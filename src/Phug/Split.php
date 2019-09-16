@@ -3,7 +3,7 @@
 namespace Phug;
 
 use Phug\Split\Command\Analyze;
-use Phug\Split\Command\Compare;
+use Phug\Split\Command\Copy;
 use Phug\Split\Command\Dist;
 use Phug\Split\Command\Update;
 use SimpleCli\SimpleCli;
@@ -16,6 +16,7 @@ class Split extends SimpleCli
             Analyze::class,
             Dist::class,
             Update::class,
+            Copy::class,
         ];
     }
 

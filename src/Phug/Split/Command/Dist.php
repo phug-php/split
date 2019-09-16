@@ -3,17 +3,16 @@
 namespace Phug\Split\Command;
 
 use Phug\Split;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use Phug\Split\Command\Options\GitProgram;
 use SimpleCli\Options\Verbose;
 use SimpleCli\SimpleCli;
 
 /**
- * Compare master repository to sub-repositories.
+ * Create a distribution directory with each sub-package in it.
  */
 class Dist extends Analyze
 {
-    use Verbose;
+    use Verbose, GitProgram;
 
     /**
      * @argument
@@ -23,15 +22,6 @@ class Dist extends Analyze
      * @var string
      */
     public $output = 'dist';
-
-    /**
-     * @option g, git-program
-     *
-     * Git binary program path.
-     *
-     * @var string
-     */
-    public $gitProgram = 'git';
 
     /**
      * @option git-credentials
@@ -57,59 +47,6 @@ class Dist extends Analyze
         if ($this->verbose) {
             $cli->writeLine($message, 'brown');
         }
-    }
-
-    protected function remove(string $fileOrDirectory): bool
-    {
-        if (is_dir($fileOrDirectory)) {
-            $dir = new RecursiveDirectoryIterator($fileOrDirectory, RecursiveDirectoryIterator::SKIP_DOTS);
-            $dir = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
-
-            foreach ($dir as $filename => $file) {
-                is_file($filename)
-                    ? unlink($filename)
-                    : rmdir($filename);
-            }
-
-            return rmdir($fileOrDirectory);
-        }
-
-        if (file_exists($fileOrDirectory)) {
-            return unlink($fileOrDirectory);
-        }
-
-        return false;
-    }
-
-    protected function gitEscape(string $value): string
-    {
-        return "$'".addcslashes($value, "'\\")."'";
-    }
-
-    protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
-    {
-        foreach ($options as $name => $value) {
-            $command .= ' --'.$name.'='.$this->gitEscape($value);
-        }
-
-        return $this->gitProgram.' '.$command.($redirect ? ' '.$redirect : '');
-    }
-
-    protected function git(string $command, array $options = [], string $redirect = null): ?string
-    {
-        $command = $this->getGitCommand($command, $options, $redirect);
-
-        if (strpos($command, '$\'') === false) {
-            return shell_exec($command);
-        }
-
-        $script = sys_get_temp_dir().'/script.sh';
-        file_put_contents($script, "#!/bin/sh\n".$command);
-        chmod($script, 0777);
-        $output = shell_exec(escapeshellcmd($script).($redirect ? ' '.$redirect : ''));
-        unlink($script);
-
-        return $output;
     }
 
     protected function distribute(Split $cli): bool

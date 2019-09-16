@@ -3,38 +3,44 @@
 namespace Phug\Split\Command;
 
 use Phug\Split;
+use Phug\Split\Command\Options\GitProgram;
+use Phug\Split\Command\Options\HashPrefix;
 use SimpleCli\SimpleCli;
 use Traversable;
 
 /**
- * Display the tree of nested packages in the mono-repository.
+ * Copy files from the mono-repository to a sub-package at the current linked revision.
  */
-class Analyze extends CommandBase
+class Copy extends CommandBase
 {
+    use HashPrefix, GitProgram;
+
     /**
      * @argument
      *
-     * Root project directory.
+     * Source mono-repository URL.
      *
      * @var string
      */
-    public $directory = '.';
+    public $repository;
 
     /**
-     * @option c, composer-file
+     * @argument
      *
-     * Composer file name.
+     * Destination directory.
      *
      * @var string
      */
-    public $composerFile = 'composer.json';
+    public $destination = '.';
 
     /**
-     * Last AST of projects.
+     * @option
      *
-     * @var array[]
+     * Glob filters separated by commas to select the files to copy.
+     *
+     * @var string
      */
-    protected $ast;
+    public $filters = 'composer.json';
 
     /**
      * @param Split $cli
@@ -43,8 +49,36 @@ class Analyze extends CommandBase
      */
     public function run(SimpleCli $cli): bool
     {
-        return $this->calculatePackagesTree($cli) &&
-            $this->dumpPackagesTree($cli, $this->getPackages());
+        if (!$this->repository) {
+            return $cli->error('Please provide an input repository URL.');
+        }
+
+        $hash = $this->getCurrentLinkedCommitHash();
+
+        if (!$hash) {
+            return $cli->error('Last commit must be linked to a mono-repository commit.');
+        }
+
+        $destination = realpath($this->destination);
+
+        if (!$destination) {
+            return $cli->error('Destination directory "'.$this->destination.'" does not seem to exist.');
+        }
+
+        $workDirectory = sys_get_temp_dir().'/split-copy-'.mt_rand(0, 9999999);
+        mkdir($workDirectory, 0777, true);
+        $cli->chdir($workDirectory);
+        $this->git('clone '.$this->repository.' .');
+        $this->git("reset --hard $hash");
+
+        foreach (explode(',', $this->filters) as $filter) {
+            shell_exec('cp -r '.$filter.' '.escapeshellarg($destination.DIRECTORY_SEPARATOR));
+        }
+
+        $cli->writeLine('copy');
+        $this->remove($workDirectory);
+
+        return true;
     }
 
     protected function calculatePackagesTree(Split $cli): bool
