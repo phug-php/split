@@ -8,7 +8,6 @@ env:
   global:
     - CODACY_PROJECT_TOKEN=eb1f0554c46a4ae486c35d40f75b6d4e
     - CC_TEST_REPORTER_ID=cd1a1fbecb6b26000bcdc53d59b592735acb420dd96ce7151cd9424c39c95cf3
-    - MULTITEST=off
     - COVERAGE=off
     - STYLECHECK=off
 
@@ -17,16 +16,8 @@ matrix:
     - php: 7.4snapshot
     - php: 7.3
       env: COVERAGE=on
-    - php: 7.2
-    - php: 7.1
-    - php: 7.0
-    - php: 5.6
-    - php: 5.5
-      dist: trusty
     - php: 7.3
       env: STYLECHECK=on
-    - php: 7.3
-      env: MULTITEST=on
 
 cache:
   apt: true
@@ -47,10 +38,9 @@ before_script:
   - if [[ "$COVERAGE" = "on" ]]; then ./cc-test-reporter before-build; fi;
 
 script:
-  - if [[ "$STYLECHECK" != "on" && "$COVERAGE" != "on" && "$MULTITEST" != "on" ]]; then vendor/bin/phpunit; fi;
+  - if [[ "$STYLECHECK" != "on" && "$COVERAGE" != "on" ]]; then vendor/bin/phpunit; fi;
   - if [[ "$COVERAGE" = "on" ]]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml; fi;
   - if [[ "$MULTITEST" = "on" ]]; then vendor/bin/multi-tester --verbose --quiet-install; fi;
-  - if [[ "$STYLECHECK" = "on" ]]; then vendor/bin/phpcs --ignore=*.js; fi;
 
 after_success:
   - if [[ "$COVERAGE" = "on" ]]; then bash <(curl -s https://codecov.io/bash); fi;
