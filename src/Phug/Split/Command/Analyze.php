@@ -37,7 +37,7 @@ class Analyze extends CommandBase
     protected $ast;
 
     /**
-     * @param Split $cli
+     * @param Split|SimpleCli $cli
      *
      * @return bool
      */
@@ -123,6 +123,7 @@ class Analyze extends CommandBase
     {
         return [
             'name' => $data['name'],
+            'directory' => $directory,
             'children' => [],
         ];
     }

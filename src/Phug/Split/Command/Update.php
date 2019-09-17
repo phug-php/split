@@ -43,6 +43,16 @@ class Update extends Dist
         ];
     }
 
+    /**
+     * Get list of commit to replay.
+     *
+     * @param Split  $cli
+     * @param string $hash
+     *
+     * @throws Exception
+     *
+     * @return Log
+     */
     protected function getReplayLog(Split $cli, string $hash): Log
     {
         $max = $this->maximumCommitsReplay;
@@ -74,6 +84,8 @@ class Update extends Dist
     }
 
     /**
+     * Distribute and update the sub-package.
+     *
      * @param Split $cli
      * @param array $package
      * @param string $branch
@@ -115,12 +127,14 @@ class Update extends Dist
                 $this->setGitCommitter($commit->getCommit()->getAuthor());
                 $author = $commit->getAuthor();
 
+                $commitMessageFile = sys_get_temp_dir().'/commit-message-'.mt_rand(0, 99999999);
+                file_put_contents($commitMessageFile, $commit->getMessage()."\n\n".$this->hashPrefix.$hash);
                 $this->git('add .');
-                $this->git('commit', [
-                    'message' => $commit->getMessage()."\n\n".$this->hashPrefix.$hash,
+                $this->git('commit --file='.escapeshellarg($commitMessageFile), [
                     'author' => $author,
                     'date' => $author->getDate(),
                 ], '2>&1');
+                unlink($commitMessageFile);
 
                 if (!$this->noPush) {
                     $name = $package['name'];

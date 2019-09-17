@@ -33,7 +33,7 @@ class Dist extends Analyze
     public $gitCredentials = '';
 
     /**
-     * @param Split $cli
+     * @param Split|SimpleCli $cli
      *
      * @return bool
      */
@@ -111,7 +111,7 @@ class Dist extends Analyze
 
         $cli->gray();
         $this->git("clone $url $directory");
-        $cli->ungray();
+        $cli->discolor();
 
         $cli->chdir($directory);
 
@@ -122,7 +122,7 @@ class Dist extends Analyze
         $cli->writeLine("git checkout$option $branch", 'light_green');
         $cli->gray();
         $this->git("checkout$option $branch");
-        $cli->ungray();
+        $cli->discolor();
 
         return true;
     }

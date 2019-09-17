@@ -3,28 +3,40 @@
 namespace Phug\Test;
 
 use PHPUnit\Framework\TestCase;
+use Phug\Split;
 
+/**
+ * @coversDefaultClass \Phug\Split
+ */
 class SplitTest extends TestCase
 {
-    public function testShellOutput1()
+    /**
+     * @covers ::gray
+     */
+    public function testGray()
     {
-        $script = sys_get_temp_dir().'/script.sh';
-        file_put_contents($script, "#!/bin/sh\necho $'something\n\\\\Yoh\n\n\\'la\\' hop\\\\'");
-        chmod($script, 0777);
-        $output = shell_exec(escapeshellcmd($script));
-        unlink($script);
+        $split = new Split();
+        $split->setEscapeCharacter('[escape]');
+        ob_start();
+        $split->gray();
+        $output = ob_get_contents();
+        ob_end_clean();
 
-        $this->assertSame("something\n\\Yoh\n\n'la' hop\\", $output);
+        $this->assertSame('[escape][1;30m', $output);
     }
 
-    public function testShellOutput2()
+    /**
+     * @covers ::discolor
+     */
+    public function testDiscolor()
     {
-        $script = sys_get_temp_dir().'/script.sh';
-        file_put_contents($script, "#!/bin/sh\necho 'something\n\\\\Yoh\n\n\\'la\\' hop\\\\'");
-        chmod($script, 0777);
-        $output = shell_exec(escapeshellcmd($script));
-        unlink($script);
+        $split = new Split();
+        $split->setEscapeCharacter('[escape]');
+        ob_start();
+        $split->discolor();
+        $output = ob_get_contents();
+        ob_end_clean();
 
-        $this->assertSame("something\n\\Yoh\n\n'la' hop\\", $output);
+        $this->assertSame('[escape][0m', $output);
     }
 }

@@ -25,7 +25,7 @@ class Split extends SimpleCli
         $this->write($this->getColorCode('dark_gray'));
     }
 
-    public function ungray()
+    public function discolor()
     {
         $this->write($this->escapeCharacter.'[0m');
     }

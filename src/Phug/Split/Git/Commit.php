@@ -76,7 +76,7 @@ class Commit
                 new Author(trim($matches['commitName']), trim($matches['commitEmail'])),
                 new Date($matches['commitDate']),
             ),
-            preg_replace('/^    /m', '', trim($matches['message']))
+            preg_replace('/^ {4}/m', '', trim($matches['message']))
         );
     }
 

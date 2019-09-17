@@ -5,15 +5,14 @@ namespace Phug\Split\Command;
 use Exception;
 use Phug\Split\Git\Commit;
 use Phug\Split\Git\Log;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SimpleCli\Command;
-use SimpleCli\Options\Help;
+use SimpleCli\CommandBase as Command;
 
-abstract class CommandBase implements Command
+/**
+ * @property-read string $gitProgram Git program path.
+ * @property-read string $hashPrefix Prefix for split linked commit hashes.
+ */
+abstract class CommandBase extends Command
 {
-    use Help;
-
     /**
      * Escape a value for git command argument or option.
      *
@@ -23,7 +22,7 @@ abstract class CommandBase implements Command
      */
     protected function gitEscape(string $value): string
     {
-        return "$'".addcslashes($value, "'\\")."'";
+        return '"'.addcslashes($value, '"').'"';
     }
 
     /**
@@ -120,23 +119,9 @@ abstract class CommandBase implements Command
      */
     protected function remove(string $fileOrDirectory): bool
     {
-        if (is_dir($fileOrDirectory)) {
-            $dir = new RecursiveDirectoryIterator($fileOrDirectory, RecursiveDirectoryIterator::SKIP_DOTS);
-            $dir = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
+        @shell_exec('rm -rf '.escapeshellarg($fileOrDirectory).' 2>&1');
+        @shell_exec('rmdir /S /Q '.escapeshellarg($fileOrDirectory).' 2>&1');
 
-            foreach ($dir as $filename => $file) {
-                is_file($filename)
-                    ? unlink($filename)
-                    : rmdir($filename);
-            }
-
-            return rmdir($fileOrDirectory);
-        }
-
-        if (file_exists($fileOrDirectory)) {
-            return unlink($fileOrDirectory);
-        }
-
-        return false;
+        return true;
     }
 }
