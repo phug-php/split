@@ -13,7 +13,7 @@ class Date extends DateTimeImmutable
      */
     protected $originalString;
 
-    public function __construct($time = "now", $timezone = null)
+    public function __construct($time = null, $timezone = null)
     {
         $this->originalString = $time;
 
