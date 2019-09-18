@@ -14,9 +14,9 @@ class Split extends SimpleCli
     {
         return [
             Analyze::class,
+            Copy::class,
             Dist::class,
             Update::class,
-            Copy::class,
         ];
     }
 
