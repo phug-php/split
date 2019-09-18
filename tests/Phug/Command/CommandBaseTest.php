@@ -82,7 +82,6 @@ class CommandBaseTest extends TestCase
         $git->setAccessible(true);
 
         $this->assertSame("abc\n", $git->invoke($copy, 'abc'));
-        $this->assertSame("abc --foo=\"bar\"\n", $git->invoke($copy, 'abc', ['foo' => 'bar']));
     }
 
     /**

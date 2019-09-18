@@ -110,7 +110,7 @@ abstract class CommandBase extends Command
     protected function remove(string $fileOrDirectory): bool
     {
         @shell_exec('rm -rf '.escapeshellarg($fileOrDirectory).' 2>&1');
-        @shell_exec('rmdir /S /Q '.escapeshellarg($fileOrDirectory).' 2>&1');
+        file_exists($fileOrDirectory) && @shell_exec('rmdir /S /Q '.escapeshellarg($fileOrDirectory).' 2>&1');
 
         return true;
     }
