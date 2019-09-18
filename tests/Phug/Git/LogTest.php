@@ -58,7 +58,7 @@ class LogTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::offsetSet
      * @covers \Phug\Split\Git\ImmutableLogException::__construct
      */
     public function testImmutabilityOnSet()
@@ -80,7 +80,7 @@ class LogTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::offsetUnset
      * @covers \Phug\Split\Git\ImmutableLogException::__construct
      */
     public function testImmutabilityOnUnset()
