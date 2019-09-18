@@ -2,6 +2,10 @@
 
 namespace Phug\Test\Split\Git;
 
+use ArrayAccess;
+use ArrayObject;
+use Exception;
+use IteratorAggregate;
 use PHPUnit\Framework\TestCase;
 use Phug\Split\Git\Act;
 use Phug\Split\Git\Author;
@@ -95,5 +99,78 @@ class LogTest extends TestCase
         $log = new Log([$commit]);
 
         unset($log[0]);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getIterator
+     */
+    public function testGetIterator()
+    {
+        $commit = new Commit(
+            'abc123',
+            new Act(new Author('a', 'b'), new Date()),
+            new Act(new Author('a', 'b'), new Date()),
+            'message'
+        );
+        $log = new Log([$commit]);
+
+        $this->assertInstanceOf(IteratorAggregate::class, $log);
+        $this->assertInstanceOf(ArrayAccess::class, $log);
+
+        $iterator = $log->getIterator();
+
+        $this->assertInstanceOf(ArrayObject::class, $iterator);
+        $this->assertSame($commit, $iterator[0]);
+    }
+
+    /**
+     * @covers ::offsetExists
+     */
+    public function testOffsetExists()
+    {
+        $commit = new Commit(
+            'abc123',
+            new Act(new Author('a', 'b'), new Date()),
+            new Act(new Author('a', 'b'), new Date()),
+            'message'
+        );
+        $log = new Log([$commit]);
+
+        $this->assertTrue(isset($log[0]));
+        $this->assertFalse(isset($log[1]));
+    }
+
+    /**
+     * @covers ::fromGitLogString
+     * @throws Exception
+     */
+    public function testFromGitLogString()
+    {
+        $log = Log::fromGitLogString(implode("\n", [
+            'commit 1027388876b5fe905ad39eea13e427bd86a4ab13 (HEAD -> master, origin/master, origin/HEAD)',
+            'Author:     KyleKatarn <kylekatarnls@gmail.com>',
+            'AuthorDate: Wed Sep 18 16:45:43 2019 +0200',
+            'Commit:     KyleKatarn <kylekatarnls@gmail.com>',
+            'CommitDate: Wed Sep 18 16:46:07 2019 +0200',
+            '',
+            '    Add unit tests',
+            '',
+            'commit 0464007d3f51e534109b2c2896afb67a18de199d',
+            'Author:     KyleKatarn <kylekatarnls@gmail.com>',
+            'AuthorDate: Tue Sep 17 17:29:05 2019 +0200',
+            'Commit:     KyleKatarn <kylekatarnls@gmail.com>',
+            'CommitDate: Tue Sep 17 17:29:05 2019 +0200',
+            '',
+            '    [Travis-CI] Debug tests',
+            '',
+        ]));
+
+        $this->assertSame('1027388876b5fe905ad39eea13e427bd86a4ab13', $log[0]->getHash());
+        $this->assertSame('Wed Sep 18 16:46:07 2019 +0200', (string) $log[0]->getCommit()->getDate());
+        $this->assertSame('Wed Sep 18 16:45:43 2019 +0200', (string) $log[0]->getAuthor()->getDate());
+        $this->assertSame('0464007d3f51e534109b2c2896afb67a18de199d', $log[1]->getHash());
+        $this->assertSame('Tue Sep 17 17:29:05 2019 +0200', (string) $log[1]->getCommit()->getDate());
+        $this->assertSame('Tue Sep 17 17:29:05 2019 +0200', (string) $log[1]->getAuthor()->getDate());
     }
 }
