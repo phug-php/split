@@ -56,17 +56,7 @@ abstract class CommandBase extends Command
     {
         $command = $this->getGitCommand($command, $options, $redirect);
 
-        if (strpos($command, '$\'') === false) {
-            return shell_exec($command);
-        }
-
-        $script = sys_get_temp_dir().'/script.sh';
-        file_put_contents($script, "#!/bin/sh\n".$command);
-        chmod($script, 0777);
-        $output = shell_exec(escapeshellcmd($script).($redirect ? ' '.$redirect : ''));
-        unlink($script);
-
-        return $output;
+        return shell_exec($command);
     }
 
     /**

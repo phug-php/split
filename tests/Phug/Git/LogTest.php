@@ -143,6 +143,8 @@ class LogTest extends TestCase
 
     /**
      * @covers ::fromGitLogString
+     * @covers ::count
+     * @covers ::offsetGet
      * @throws Exception
      */
     public function testFromGitLogString()
@@ -166,6 +168,7 @@ class LogTest extends TestCase
             '',
         ]));
 
+        $this->assertCount(2, $log);
         $this->assertSame('1027388876b5fe905ad39eea13e427bd86a4ab13', $log[0]->getHash());
         $this->assertSame('Wed Sep 18 16:46:07 2019 +0200', (string) $log[0]->getCommit()->getDate());
         $this->assertSame('Wed Sep 18 16:45:43 2019 +0200', (string) $log[0]->getAuthor()->getDate());

@@ -4,11 +4,12 @@ namespace Phug\Split\Git;
 
 use ArrayAccess;
 use ArrayObject;
+use Countable;
 use Exception;
 use IteratorAggregate;
 use Traversable;
 
-class Log implements IteratorAggregate, ArrayAccess
+class Log implements IteratorAggregate, ArrayAccess, Countable
 {
     /**
      * List of git commits.
@@ -128,5 +129,17 @@ class Log implements IteratorAggregate, ArrayAccess
     public function offsetUnset($offset): void
     {
         throw new ImmutableLogException();
+    }
+
+    /**
+     * Count elements of an object.
+     *
+     * @link https://php.net/manual/en/countable.count.php
+     *
+     * @return int The custom count as an integer.
+     */
+    public function count(): int
+    {
+        return count($this->commits);
     }
 }
