@@ -69,15 +69,18 @@ class Copy extends CommandBase
 
         $workDirectory = sys_get_temp_dir().'/split-copy-'.mt_rand(0, 9999999);
         mkdir($workDirectory, 0777, true);
-        $cli->chdir($workDirectory);
-        $this->git('clone '.$this->repository.' .');
-        $this->git("reset --hard $hash");
+        chdir($workDirectory);
+        $this->git('clone '.$this->repository.' .', [], '2>&1');
+        $this->git("reset --hard $hash", [], '2>&1');
 
         foreach (explode(',', $this->filters) as $filter) {
-            shell_exec('cp -r '.$filter.' '.escapeshellarg($destination.DIRECTORY_SEPARATOR));
+            shell_exec(
+                'cp -r '.$filter.' '.escapeshellarg($destination.DIRECTORY_SEPARATOR).' || '.
+                'copy /Y '.$filter.' '.escapeshellarg($destination.DIRECTORY_SEPARATOR).' 2>&1'
+            );
         }
 
-        $cli->writeLine('copy');
+        $cli->writeLine('Copy ended.');
         $this->remove($workDirectory);
 
         return true;
