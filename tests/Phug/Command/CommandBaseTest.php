@@ -49,7 +49,8 @@ class CommandBaseTest extends TestCase
         shell_exec('git commit --message='.$gitEscape->invoke($copy, $string));
         $log = shell_exec('git log -n 1 2>&1');
         chdir($cwd);
-        @shell_exec('rmdir /S /Q '.escapeshellarg($directory));
+        @shell_exec('rm -rf '.escapeshellarg($directory).' 2>&1');
+        file_exists($directory) && @shell_exec('rmdir /S /Q '.escapeshellarg($directory).' 2>&1');
         @FileSystem::delete($directory);
 
         $log = explode("\n\n", $log);
@@ -115,7 +116,8 @@ class CommandBaseTest extends TestCase
         /** @var Commit[]|Log $fooCommits */
         $fooCommits = $latest->invoke($copy, 2, 'foo');
         chdir($cwd);
-        @shell_exec('rmdir /S /Q '.escapeshellarg($directory));
+        @shell_exec('rm -rf '.escapeshellarg($directory).' 2>&1');
+        file_exists($directory) && @shell_exec('rmdir /S /Q '.escapeshellarg($directory).' 2>&1');
         @FileSystem::delete($directory);
 
         $this->assertInstanceOf(Log::class, $commits);
@@ -163,7 +165,8 @@ class CommandBaseTest extends TestCase
         /** @var Commit $fooCommit */
         $fooCommit = $last->invoke($copy, 'foo');
         chdir($cwd);
-        @shell_exec('rmdir /S /Q '.escapeshellarg($directory));
+        @shell_exec('rm -rf '.escapeshellarg($directory).' 2>&1');
+        file_exists($directory) && @shell_exec('rmdir /S /Q '.escapeshellarg($directory).' 2>&1');
         @FileSystem::delete($directory);
 
         $this->assertInstanceOf(Commit::class, $commit);
@@ -201,7 +204,8 @@ class CommandBaseTest extends TestCase
         /** @var string $hash */
         $hash = $getCurrentLinkedCommitHash->invoke($copy);
         chdir($cwd);
-        @shell_exec('rmdir /S /Q '.escapeshellarg($directory));
+        @shell_exec('rm -rf '.escapeshellarg($directory).' 2>&1');
+        file_exists($directory) && @shell_exec('rmdir /S /Q '.escapeshellarg($directory).' 2>&1');
         @FileSystem::delete($directory);
 
         $this->assertSame('123', $hash);

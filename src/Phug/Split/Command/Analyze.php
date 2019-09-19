@@ -91,8 +91,8 @@ class Analyze extends CommandBase
 
         foreach ($packages as $index => $package) {
             $symbol = $index === $count - 1 ? '└' : '├';
-            $cli->writeLine(str_repeat('   ', $level).' '.$symbol.' '.$package['name'], 'light_cyan');
-            $this->dumpPackagesTree($cli, $package['children']);
+            $cli->writeLine(str_repeat(' │ ', $level).' '.$symbol.' '.$package['name'], 'light_cyan');
+            $this->dumpPackagesTree($cli, $package['children'], $level + 1);
         }
 
         return true;
