@@ -5,7 +5,6 @@ namespace Phug\Test\Split\Command;
 use Nette\Utils\FileSystem;
 use PHPUnit\Framework\TestCase;
 use Phug\Split;
-use Phug\Split\Command\Analyze;
 use Phug\Split\Command\Copy;
 
 /**
@@ -61,6 +60,7 @@ class CopyTest extends TestCase
         $contentC = @file_get_contents("$directory2/tests/c.txt");
 
         chdir($cwd);
+
         foreach ([$directory1, $directory2] as $directory) {
             @shell_exec('rm -rf ' . escapeshellarg($directory) . ' 2>&1');
             file_exists($directory) && @shell_exec('rmdir /S /Q ' . escapeshellarg($directory) . ' 2>&1');
@@ -107,7 +107,6 @@ class CopyTest extends TestCase
         shell_exec('git add --all 2>&1');
         shell_exec('git commit --message=Init 2>&1');
         preg_match('/^commit (\S+)/', shell_exec('git log -n 1'), $match);
-        $hash = $match[1];
 
         $directory2 = sys_get_temp_dir().'/split-test-'.mt_rand(0, 9999999);
         FileSystem::createDir("$directory2/tests");
@@ -134,6 +133,7 @@ class CopyTest extends TestCase
         $contentC = @file_get_contents("$directory2/tests/c.txt");
 
         chdir($cwd);
+
         foreach ([$directory1, $directory2] as $directory) {
             @shell_exec('rm -rf ' . escapeshellarg($directory) . ' 2>&1');
             file_exists($directory) && @shell_exec('rmdir /S /Q ' . escapeshellarg($directory) . ' 2>&1');
@@ -186,6 +186,7 @@ class CopyTest extends TestCase
         $contentC = @file_get_contents("$directory2/tests/c.txt");
 
         chdir($cwd);
+
         foreach ([$directory1, $directory2] as $directory) {
             @shell_exec('rm -rf ' . escapeshellarg($directory) . ' 2>&1');
             file_exists($directory) && @shell_exec('rmdir /S /Q ' . escapeshellarg($directory) . ' 2>&1');

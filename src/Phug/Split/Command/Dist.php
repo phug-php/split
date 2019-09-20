@@ -33,6 +33,17 @@ class Dist extends Analyze
     public $gitCredentials = '';
 
     /**
+     * @option
+     *
+     * Composer API (by default repo.packagist.org URL used).
+     * %s pattern in the API is replaced by the package full name.
+     * It can be any local or remote path file_get_contents() is able to get.
+     *
+     * @var string
+     */
+    public $api = 'https://repo.packagist.org/p/%s.json';
+
+    /**
      * @param Split|SimpleCli $cli
      *
      * @return bool
@@ -65,7 +76,7 @@ class Dist extends Analyze
         }
 
         if (!preg_match('/^\* (.+)$/m', $this->git('branch'), $branch)) {
-            return $cli->error('You must be on a branch to run this command.');
+            return $cli->error('You must be on a branch in a git repository to run this command.');
         }
 
         $branch = $branch[1];
@@ -91,7 +102,7 @@ class Dist extends Analyze
 
         $cli->writeLine("Build $name", 'light_purple');
 
-        $data = json_decode(file_get_contents("https://repo.packagist.org/p/$name.json"), true);
+        $data = json_decode(file_get_contents(sprintf($this->api, $name)), true);
         $config = $data['packages'][$name] ?? [];
         $config = $config['dev-master'] ?? next($config);
 
