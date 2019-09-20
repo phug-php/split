@@ -117,7 +117,7 @@ class Update extends Dist
                 $cli->chdir($sourceDirectory);
                 $hash = $commit->getHash();
                 $this->git('config advice.detachedHead false');
-                $this->git("checkout -f $hash");
+                $this->git("checkout -f $hash", [], '2>&1');
                 rename("$distributionDirectory/.git", $this->output.'/.git.temp');
                 $this->remove($distributionDirectory);
                 shell_exec('cp -r . '.escapeshellarg($distributionDirectory));
@@ -154,7 +154,7 @@ class Update extends Dist
 
         $cli->chdir($sourceDirectory);
 
-        $this->git("checkout -f $branch");
+        $this->git("checkout -f $branch", [], '2>&1');
         $this->git('stash pop');
 
         return true;
