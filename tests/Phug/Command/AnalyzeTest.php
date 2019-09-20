@@ -52,7 +52,6 @@ class AnalyzeTest extends TestCase
         file_exists($directory) && @shell_exec('rmdir /S /Q '.escapeshellarg($directory).' 2>&1');
         @FileSystem::delete($directory);
 
-        $this->assertTrue($return);
         $this->assertSame(implode("\n", [
             'main/package',
             '#[1;36m ├ a/b',
@@ -61,6 +60,7 @@ class AnalyzeTest extends TestCase
             '#[0m#[1;36m └ main/fuz',
             '#[0m',
         ]), $output);
+        $this->assertTrue($return);
     }
 
     /**
@@ -78,8 +78,8 @@ class AnalyzeTest extends TestCase
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mInput directory not found.\n#[0m", $output);
+        $this->assertFalse($return);
 
         $cwd = getcwd();
         chdir(__DIR__);
@@ -90,7 +90,7 @@ class AnalyzeTest extends TestCase
         ob_end_clean();
         chdir($cwd);
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mRoot project directory should contains a composer.json file.\n#[0m", $output);
+        $this->assertFalse($return);
     }
 }

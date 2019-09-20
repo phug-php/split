@@ -67,8 +67,8 @@ class CopyTest extends TestCase
             @FileSystem::delete($directory);
         }
 
-        $this->assertTrue($return);
         $this->assertSame("Copy ended.\n", $output);
+        $this->assertTrue($return);
         $this->assertSame('A', $contentA);
         $this->assertSame('B', $contentB);
         $this->assertFalse($contentC);
@@ -90,8 +90,8 @@ class CopyTest extends TestCase
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mPlease provide an input repository URL.\n#[0m", $output);
+        $this->assertFalse($return);
 
         $cwd = getcwd();
         $copy = new Copy();
@@ -140,8 +140,8 @@ class CopyTest extends TestCase
             @FileSystem::delete($directory);
         }
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mLast commit must be linked to a mono-repository commit.\n#[0m", $output);
+        $this->assertFalse($return);
         $this->assertFalse($contentA);
         $this->assertFalse($contentB);
         $this->assertFalse($contentC);
@@ -193,8 +193,8 @@ class CopyTest extends TestCase
             @FileSystem::delete($directory);
         }
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mDestination directory \"i-do-not-exist\" does not seem to exist.\n#[0m", $output);
+        $this->assertFalse($return);
         $this->assertFalse($contentA);
         $this->assertFalse($contentB);
         $this->assertFalse($contentC);

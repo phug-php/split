@@ -92,7 +92,6 @@ class DistTest extends TestCase
             @FileSystem::delete($directory);
         }
 
-        $this->assertTrue($return);
         $path = $directory1.DIRECTORY_SEPARATOR;
         $expected = implode("\n", [
             'vendor/package',
@@ -104,6 +103,7 @@ class DistTest extends TestCase
             '#[0m',
         ]);
         $this->assertSame($expected, $output);
+        $this->assertTrue($return);
         $this->assertSame('D', $contentD);
         $this->assertSame('E', $contentE);
         $this->assertSame('F', $contentF);
@@ -125,8 +125,8 @@ class DistTest extends TestCase
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertFalse($return);
         $this->assertSame("#[0;31mRoot project directory should contains a composer.json file.\n#[0m", $output);
+        $this->assertFalse($return);
 
         $cwd = getcwd();
         $dist = new Dist();
@@ -154,8 +154,8 @@ class DistTest extends TestCase
         file_exists($directory) && @shell_exec('rmdir /S /Q ' . escapeshellarg($directory) . ' 2>&1');
         @FileSystem::delete($directory);
 
-        $this->assertFalse($return);
         $this->assertSame("vendor/package\n#[0;31mUnable to create output directory.\n#[0m", $output);
+        $this->assertFalse($return);
 
         $dist = new Dist();
 
@@ -192,10 +192,10 @@ class DistTest extends TestCase
             @FileSystem::delete($directory);
         }
 
-        $this->assertFalse($return);
         $this->assertSame(
             "vendor/sub-package\n#[0;31mYou must be on a branch in a git repository to run this command.\n#[0m",
             $output
         );
+        $this->assertFalse($return);
     }
 }
