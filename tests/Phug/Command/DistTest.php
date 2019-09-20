@@ -93,13 +93,14 @@ class DistTest extends TestCase
         }
 
         $this->assertTrue($return);
+        $path = $directory1.DIRECTORY_SEPARATOR;
         $expected = implode("\n", [
             'vendor/package',
             '#[1;35mBuild vendor/sub-package',
-            "#[0m#[1;32mgit clone $directory2 $directory1\dist/vendor/sub-package",
-            "#[0m#[1;30m#[0m#[1;34mcd $directory1\dist/vendor/sub-package",
+            "#[0m#[1;32mgit clone $directory2 {$path}dist/vendor/sub-package",
+            "#[0m#[1;30m#[0m#[1;34mcd {$path}dist/vendor/sub-package",
             '#[0m#[1;32mgit checkout master',
-            "#[0m#[1;30m#[0m#[1;35mBuild distributed in $directory1\dist",
+            "#[0m#[1;30m#[0m#[1;35mBuild distributed in {$path}dist",
             '#[0m',
         ]);
         $this->assertSame($expected, $output);
