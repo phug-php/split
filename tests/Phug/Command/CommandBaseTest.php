@@ -227,8 +227,10 @@ class CommandBaseTest extends TestCase
         FileSystem::createDir('foo');
         file_put_contents('foo/bar', 'bar');
         chdir($cwd);
-        $remove->invoke($copy, $directory);
 
+        $this->assertTrue($remove->invoke($copy, $directory));
         $this->assertDirectoryNotExists($directory);
+
+        $this->assertFalse($remove->invoke($copy, "//////\nnot/writable"));
     }
 }

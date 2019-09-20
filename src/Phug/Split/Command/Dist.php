@@ -100,15 +100,15 @@ class Dist extends Analyze
 
         $name = $package['name'];
 
-        $cli->writeLine("Build $name", 'light_purple');
-
         $data = json_decode(file_get_contents(sprintf($this->api, $name)), true);
         $config = $data['packages'][$name] ?? [];
         $config = $config['dev-master'] ?? next($config);
 
         if (!isset($config['source']) || $config['source']['type'] !== 'git') {
-            $cli->warning("No git source found for the package $name");
+            return $cli->error("No git source found for the package $name");
         }
+
+        $cli->writeLine("Build $name", 'light_purple');
 
         $url = $config['source']['url'];
         $directory = $this->output."/$name";
@@ -121,7 +121,7 @@ class Dist extends Analyze
         }
 
         $cli->gray();
-        $cli->write($this->git("clone $url $directory", [], '2>&1'));
+        $cli->write($this->git("clone -c advice.detachedHead=false $url $directory", [], '2>&1'));
         $cli->discolor();
 
         $cli->chdir($directory);
