@@ -69,7 +69,7 @@ class DistTest extends TestCase
         shell_exec('git commit --file=message.txt 2>&1');
         preg_match('/^commit (\S+)/', shell_exec('git log -n 1'), $match);
         $hash2 = $match[1];
-        shell_exec("git checkout $hash2");
+        shell_exec("git checkout $hash2 2>&1");
 
         chdir($directory1);
 
@@ -97,7 +97,9 @@ class DistTest extends TestCase
             'vendor/package',
             '#[1;35mBuild vendor/sub-package',
             "#[0m#[1;32mgit clone $directory2 {$path}dist/vendor/sub-package",
-            "#[0m#[1;30m#[0m#[1;34mcd {$path}dist/vendor/sub-package",
+            "#[0m#[1;30mCloning into '{$path}dist/vendor/sub-package'...",
+            'done.',
+            "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
             '#[0m#[1;32mgit checkout master',
             "#[0m#[1;30m#[0m#[1;35mBuild distributed in {$path}dist",
             '#[0m',
@@ -115,20 +117,29 @@ class DistTest extends TestCase
      */
     public function testErrors()
     {
+        $cwd = getcwd();
         $cli = new Split();
         $cli->setEscapeCharacter('#');
 
         $dist = new Dist();
+
+        $directory = sys_get_temp_dir().'/split-test-'.mt_rand(0, 9999999);
+        FileSystem::createDir($directory);
+        $directory = realpath($directory);
+        chdir($directory);
 
         ob_start();
         $return = $dist->run($cli);
         $output = ob_get_contents();
         ob_end_clean();
 
+        @shell_exec('rm -rf ' . escapeshellarg($directory) . ' 2>&1');
+        file_exists($directory) && @shell_exec('rmdir /S /Q ' . escapeshellarg($directory) . ' 2>&1');
+        @FileSystem::delete($directory);
+
         $this->assertSame("#[0;31mRoot project directory should contains a composer.json file.\n#[0m", $output);
         $this->assertFalse($return);
 
-        $cwd = getcwd();
         $dist = new Dist();
 
         $directory = sys_get_temp_dir().'/split-test-'.mt_rand(0, 9999999);

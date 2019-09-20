@@ -75,14 +75,14 @@ class Dist extends Analyze
             return $cli->error('Unable to create output directory.');
         }
 
-        if (!preg_match('/^\* (.+)$/m', $this->git('branch'), $branch)) {
+        if (!preg_match('/^\* (.+)$/m', $this->git('branch', [], '2>&1'), $branch)) {
             return $cli->error('You must be on a branch in a git repository to run this command.');
         }
 
         $branch = $branch[1];
 
         if (substr($branch, 0, 18) === '(HEAD detached at ') {
-            $branch = trim(explode("\n", $this->git('describe --contains --all HEAD'))[0]);
+            $branch = trim(explode("\n", $this->git('describe --contains --all HEAD', [], '2>&1'))[0]);
         }
 
         foreach ($this->getPackages() as $package) {
@@ -121,7 +121,7 @@ class Dist extends Analyze
         }
 
         $cli->gray();
-        $this->git("clone $url $directory");
+        $cli->write($this->git("clone $url $directory", [], '2>&1'));
         $cli->discolor();
 
         $cli->chdir($directory);
