@@ -131,9 +131,7 @@ class Dist extends Analyze
         $this->info($cli, ' => '.($branchRevision === '' ? 'no revision' : $branchRevision));
         $option = preg_match('/^[0-9a-f]+$/i', $branchRevision) ? '' : ' -b';
         $cli->writeLine("git checkout$option $branch", 'light_green');
-        $cli->gray();
-        $this->git("checkout$option $branch");
-        $cli->discolor();
+        $this->git("checkout$option $branch", [], '2>&1');
 
         return true;
     }

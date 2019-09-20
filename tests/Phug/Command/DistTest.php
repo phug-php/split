@@ -101,7 +101,7 @@ class DistTest extends TestCase
             'done.',
             "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
             '#[0m#[1;32mgit checkout master',
-            "#[0m#[1;30m#[0m#[1;35mBuild distributed in {$path}dist",
+            "#[0m#[1;35mBuild distributed in {$path}dist",
             '#[0m',
         ]);
         $this->assertSame($expected, $output);
