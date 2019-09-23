@@ -120,9 +120,16 @@ class Update extends Dist
                 $this->git("checkout -f $hash", [], '2>&1');
                 rename("$distributionDirectory/.git", $this->output.'/.git.temp');
                 $this->remove($distributionDirectory);
-                shell_exec('cp -r . '.escapeshellarg($distributionDirectory));
+                shell_exec('cp -r . '.escapeshellarg($distributionDirectory).' 2>&1');
+
+                // @codeCoverageIgnoreStart
+                if (!file_exists($distributionDirectory)) {
+                    shell_exec('xcopy . '.escapeshellarg($distributionDirectory).' /e /i /h' );
+                }
+                // @codeCoverageIgnoreEnd
+
                 $this->remove("$distributionDirectory/.git");
-                rename($this->output.'/.git.temp', "$distributionDirectory/.git");
+                rename($this->output . '/.git.temp', "$distributionDirectory/.git");
                 $cli->chdir($distributionDirectory);
                 $this->setGitCommitter($commit->getCommit()->getAuthor());
                 $author = $commit->getAuthor();
@@ -138,7 +145,8 @@ class Update extends Dist
 
                 if (!$this->noPush) {
                     $name = $package['name'];
-                    $cli->writeLine("Pushing $name\n".$this->git("push origin $branch"), 'light_cyan');
+                    $push = $this->git("push origin $branch", [], '2>&1');
+                    $cli->writeLine("Pushing $name\n".$push, strpos($push, 'error:') === false ? 'light_cyan' : 'red');
                 }
 
                 foreach (['name', 'email'] as $userConfig) {
