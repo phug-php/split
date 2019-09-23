@@ -108,7 +108,7 @@ class Update extends Dist
             : [];
 
         $cli->chdir($sourceDirectory);
-        $this->git('stash');
+        $this->git('stash', [], '2>&1');
 
         try {
             $log = $hash ? $this->getReplayLog($cli, $hash) : $this->latest(1, '.');
@@ -155,7 +155,7 @@ class Update extends Dist
         $cli->chdir($sourceDirectory);
 
         $this->git("checkout -f $branch", [], '2>&1');
-        $this->git('stash pop');
+        $this->git('stash pop', [], '2>&1');
 
         return true;
     }
