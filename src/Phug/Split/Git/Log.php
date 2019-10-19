@@ -75,9 +75,9 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @link https://php.net/manual/en/arrayaccess.offsetexists.php
      *
-     * @param mixed $offset An offset to check for.
+     * @param int $offset An offset to check for.
      *
-     * @return boolean true on success or false on failure.
+     * @return bool true on success or false on failure.
      */
     public function offsetExists($offset): bool
     {
@@ -89,9 +89,9 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @link https://php.net/manual/en/arrayaccess.offsetget.php
      *
-     * @param mixed $offset The offset to retrieve.
+     * @param int $offset The offset to retrieve.
      *
-     * @return mixed Can return all value types.
+     * @return Commit
      */
     public function offsetGet($offset): Commit
     {
@@ -103,8 +103,8 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @link https://php.net/manual/en/arrayaccess.offsetset.php
      *
-     * @param mixed $offset The offset to assign the value to.
-     * @param mixed $value The value to set.
+     * @param int    $offset The offset to assign the value to.
+     * @param Commit $value The value to set.
      *
      * @throws ImmutableLogException
      *
@@ -120,7 +120,7 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @link https://php.net/manual/en/arrayaccess.offsetunset.php
      *
-     * @param mixed $offset The offset to unset.
+     * @param int $offset The offset to unset.
      *
      * @throws ImmutableLogException
      *

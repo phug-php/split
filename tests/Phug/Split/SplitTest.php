@@ -1,6 +1,6 @@
 <?php
 
-namespace Phug\Test;
+namespace Phug\Test\Split;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Split;
@@ -39,7 +39,7 @@ class SplitTest extends TestCase
             }
 
             return $file;
-        }, glob(__DIR__.'/../../src/Phug/Split/Command/*.php')), static function ($class) {
+        }, glob(__DIR__.'/../../../src/Phug/Split/Command/*.php')), static function ($class) {
             return $class !== null;
         }));
 
@@ -112,7 +112,7 @@ class SplitTest extends TestCase
     public function testChdir()
     {
         $cwd = getcwd();
-        chdir(__DIR__.'/../../src');
+        chdir(__DIR__.'/../../../src');
         $split = new Split();
         $split->setEscapeCharacter('[escape]');
         ob_start();

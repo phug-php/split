@@ -91,9 +91,9 @@ abstract class CommandBase extends Command
     /**
      * Get the hash of the linked commit in the mono-repository for the last sub-package commit.
      *
-     * @return string|null
-     *
      * @throws Exception
+     *
+     * @return string|null
      */
     protected function getCurrentLinkedCommitHash(): ?string
     {

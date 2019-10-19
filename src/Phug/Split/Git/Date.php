@@ -3,16 +3,26 @@
 namespace Phug\Split\Git;
 
 use DateTimeImmutable;
+use DateTimeZone;
+use Exception;
 
 class Date extends DateTimeImmutable
 {
     /**
      * Get the date string originally passed to the constructor.
      *
-     * @var string
+     * @var string|null
      */
     protected $originalString;
 
+    /**
+     * Date constructor.
+     *
+     * @param string $time
+     * @param DateTimeZone $timezone
+     *
+     * @throws Exception
+     */
     public function __construct($time = null, $timezone = null)
     {
         $this->originalString = $time;
@@ -26,6 +36,6 @@ class Date extends DateTimeImmutable
             return (string) $this->originalString;
         }
 
-        return $this->format('r');
+        return $this->format('r') ?: '';
     }
 }
