@@ -1,6 +1,6 @@
 <?php
 
-namespace Phug\Test\Split;
+namespace Phug\Tests\Split;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Split;

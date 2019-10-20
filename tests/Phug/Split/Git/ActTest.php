@@ -1,6 +1,6 @@
 <?php
 
-namespace Phug\Test\Split\Git;
+namespace Phug\Tests\Split\Git;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Split\Git\Act;

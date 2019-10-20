@@ -6,6 +6,7 @@ use Exception;
 use Phug\Split;
 use Phug\Split\Command\Options\HashPrefix;
 use Phug\Split\Git\Author;
+use Phug\Split\Git\Commit;
 use Phug\Split\Git\EmptyLogList;
 use Phug\Split\Git\Log;
 
@@ -84,6 +85,98 @@ class Update extends Dist
     }
 
     /**
+     * Copy the current directory recursively to a given destination path.
+     *
+     * @suppressWarnings(PHPMD.LongVariableName)
+     *
+     * @param string $destination
+     */
+    protected function copyCurrentDirectory(string $destination): void
+    {
+        shell_exec('cp -r . '.escapeshellarg($destination).' 2>&1');
+
+        // @codeCoverageIgnoreStart
+        if (!file_exists($destination)) {
+            shell_exec('xcopy . '.escapeshellarg($destination).' /e /i /h');
+        }
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * Get GIT local user config (.git/config file settings).
+     *
+     * @return array
+     */
+    protected function getLocalUserConfig(): array
+    {
+        static $localUser = null;
+
+        if ($localUser === null) {
+            $localUser = file('.git/config')
+                ? parse_ini_file('.git/config', true)['user'] ?? []
+                : [];
+        }
+
+        return $localUser;
+    }
+
+    /**
+     * Apply the given commit in the current repository.
+     *
+     * @param Split  $cli
+     * @param array  $package
+     * @param Commit $commit
+     * @param string $distributionDirectory
+     * @param string $branch
+     *
+     * @suppressWarnings(PHPMD.LongVariableName)
+     */
+    protected function cherryPickCommit(
+        Split $cli,
+        array $package,
+        Commit $commit,
+        string $distributionDirectory,
+        string $branch
+    ): void {
+        $hash = $commit->getHash();
+        $this->git('config advice.detachedHead false');
+        $this->git("checkout -f $hash", [], '2>&1');
+        rename("$distributionDirectory/.git", $this->output.'/.git.temp');
+        $this->remove($distributionDirectory);
+        $this->copyCurrentDirectory($distributionDirectory);
+
+        $this->remove("$distributionDirectory/.git");
+        rename($this->output.'/.git.temp', "$distributionDirectory/.git");
+        $cli->chdir($distributionDirectory);
+        $this->setGitCommitter($commit->getCommit()->getAuthor());
+        $author = $commit->getAuthor();
+
+        $commitMessageFile = sys_get_temp_dir().'/commit-message-'.mt_rand(0, 99999999);
+        file_put_contents($commitMessageFile, $commit->getMessage()."\n\n".$this->hashPrefix.$hash);
+        $this->git('add .');
+        $this->git('commit --file='.escapeshellarg($commitMessageFile), [
+            'author' => $author,
+            'date' => $author->getDate(),
+        ], '2>&1');
+        unlink($commitMessageFile);
+
+        if (!$this->noPush) {
+            $name = $package['name'];
+            $push = (string) $this->git("push origin $branch", [], '2>&1');
+            $cli->writeLine("Pushing $name\n".$push, strpos($push, 'error:') === false ? 'light_cyan' : 'red');
+        }
+
+        $localUser = $this->getLocalUserConfig();
+
+        foreach (['name', 'email'] as $userConfig) {
+            $config = empty($localUser[$userConfig])
+                ? "--unset user.$userConfig"
+                : "user.$userConfig ".$this->gitEscape($localUser[$userConfig]);
+            $this->git('config '.$config);
+        }
+    }
+
+    /**
      * Distribute and update the sub-package.
      *
      * @param Split $cli
@@ -91,6 +184,8 @@ class Update extends Dist
      * @param string $branch
      *
      * @throws Exception
+     *
+     * @suppressWarnings(PHPMD.LongVariableName)
      *
      * @return bool
      */
@@ -103,9 +198,6 @@ class Update extends Dist
         $hash = $this->getCurrentLinkedCommitHash();
         $distributionDirectory = getcwd();
         $sourceDirectory = $package['directory'];
-        $localUser = file('.git/config')
-            ? parse_ini_file('.git/config', true)['user'] ?? []
-            : [];
 
         $cli->chdir($sourceDirectory);
         $this->git('stash', [], '2>&1');
@@ -115,46 +207,7 @@ class Update extends Dist
 
             foreach ($log as $commit) {
                 $cli->chdir($sourceDirectory);
-                $hash = $commit->getHash();
-                $this->git('config advice.detachedHead false');
-                $this->git("checkout -f $hash", [], '2>&1');
-                rename("$distributionDirectory/.git", $this->output.'/.git.temp');
-                $this->remove($distributionDirectory);
-                shell_exec('cp -r . '.escapeshellarg($distributionDirectory).' 2>&1');
-
-                // @codeCoverageIgnoreStart
-                if (!file_exists($distributionDirectory)) {
-                    shell_exec('xcopy . '.escapeshellarg($distributionDirectory).' /e /i /h');
-                }
-                // @codeCoverageIgnoreEnd
-
-                $this->remove("$distributionDirectory/.git");
-                rename($this->output.'/.git.temp', "$distributionDirectory/.git");
-                $cli->chdir($distributionDirectory);
-                $this->setGitCommitter($commit->getCommit()->getAuthor());
-                $author = $commit->getAuthor();
-
-                $commitMessageFile = sys_get_temp_dir().'/commit-message-'.mt_rand(0, 99999999);
-                file_put_contents($commitMessageFile, $commit->getMessage()."\n\n".$this->hashPrefix.$hash);
-                $this->git('add .');
-                $this->git('commit --file='.escapeshellarg($commitMessageFile), [
-                    'author' => $author,
-                    'date' => $author->getDate(),
-                ], '2>&1');
-                unlink($commitMessageFile);
-
-                if (!$this->noPush) {
-                    $name = $package['name'];
-                    $push = (string) $this->git("push origin $branch", [], '2>&1');
-                    $cli->writeLine("Pushing $name\n".$push, strpos($push, 'error:') === false ? 'light_cyan' : 'red');
-                }
-
-                foreach (['name', 'email'] as $userConfig) {
-                    $config = empty($localUser[$userConfig])
-                        ? "--unset user.$userConfig"
-                        : "user.$userConfig ".$this->gitEscape($localUser[$userConfig]);
-                    $this->git('config '.$config);
-                }
+                $this->cherryPickCommit($cli, $package, $commit, $distributionDirectory, $branch);
             }
         } catch (EmptyLogList $exception) {
             $cli->writeLine($package['name'].' is already up to date.', 'green');

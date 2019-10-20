@@ -1,6 +1,6 @@
 <?php
 
-namespace Phug\Test\Split\Command;
+namespace Phug\Tests\Split\Command;
 
 use Nette\Utils\FileSystem;
 use PHPUnit\Framework\TestCase;

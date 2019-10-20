@@ -59,6 +59,8 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @throws InvalidGitLogStringException|Exception
      *
+     * @suppressWarnings(PHPMD.StaticAccess)
+     *
      * @return self
      */
     public static function fromGitLogString(string $log): self
@@ -108,6 +110,8 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @throws ImmutableLogException
      *
+     * @suppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @return void
      */
     public function offsetSet($offset, $value): void
@@ -123,6 +127,8 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      * @param int $offset The offset to unset.
      *
      * @throws ImmutableLogException
+     *
+     * @suppressWarnings(PHPMD.UnusedFormalParameter)
      *
      * @return void
      */

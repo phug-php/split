@@ -52,13 +52,12 @@
         "style-check": [
             "@phpcs",
             "@phpstan",
-            "@phpmd",
-            "@psalm"
+            "@phpmd"
         ],
         "phpunit": "phpunit --verbose",
         "phpcs": "php-cs-fixer fix -v --diff --dry-run",
         "phpstan": "phpstan analyse src tests",
-        "phpmd": "phpmd src text rulesets.xml",
+        "phpmd": "phpmd src text phpmd.xml",
         "psalm": "psalm"
     }
 }

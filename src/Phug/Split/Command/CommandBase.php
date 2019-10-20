@@ -67,6 +67,8 @@ abstract class CommandBase extends Command
      *
      * @throws Exception
      *
+     * @suppressWarnings(PHPMD.StaticAccess)
+     *
      * @return Log|Commit[]
      */
     protected function latest($count = 1, string $directory = ''): Log

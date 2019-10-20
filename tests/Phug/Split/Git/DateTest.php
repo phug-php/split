@@ -1,6 +1,6 @@
 <?php
 
-namespace Phug\Test\Split\Git;
+namespace Phug\Tests\Split\Git;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
