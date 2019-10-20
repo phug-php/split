@@ -59,7 +59,7 @@
         ],
         "phpunit": "phpunit --verbose",
         "phan": "phan",
-        "phpcs": "phpcs",
+        "phpcs": "phpcs src tests",
         "phpcsf": "php-cs-fixer fix -v --diff --dry-run",
         "phpstan": "phpstan analyse src tests",
         "phpmd": "phpmd src text phpmd.xml",

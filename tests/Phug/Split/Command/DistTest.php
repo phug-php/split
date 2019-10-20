@@ -112,10 +112,10 @@ class DistTest extends TestCase
                 '#[0m#[0;33mgit rev-parse --verify origin/master',
                 "#[0m#[0;33m => $hash2",
             ] : [], [
-            '#[0m#[1;32mgit checkout master',
-            "#[0m#[1;35mBuild distributed in {$path}dist",
-            '#[0m',
-        ]));
+                '#[0m#[1;32mgit checkout master',
+                "#[0m#[1;35mBuild distributed in {$path}dist",
+                '#[0m',
+            ]));
         $this->assertSame($expected, $output);
         $this->assertTrue($return);
         $this->assertSame('D', $contentD);
