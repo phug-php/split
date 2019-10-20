@@ -117,16 +117,16 @@ class UpdateTest extends TestCase
      */
     public function testSetGitCommitter()
     {
-        $dist = new Update();
+        $update = new Update();
         file_put_contents('log.txt', '');
         file_put_contents(
             'record.php',
             '<?php file_put_contents("log.txt", file_get_contents("log.txt").implode(" ", array_slice($argv, 1))."\n");'
         );
-        $dist->gitProgram = 'php record.php';
-        $setGitCommitter = new ReflectionMethod($dist, 'setGitCommitter');
+        $update->gitProgram = 'php record.php';
+        $setGitCommitter = new ReflectionMethod($update, 'setGitCommitter');
         $setGitCommitter->setAccessible(true);
-        $setGitCommitter->invoke($dist, new Author(
+        $setGitCommitter->invoke($update, new Author(
             'Aretha Franklin',
             'aretha.franklin@atlanticrecords.com',
         ));
@@ -141,6 +141,37 @@ class UpdateTest extends TestCase
     }
 
     /**
+     * @covers ::setGitConfig
+     *
+     * @throws ReflectionException
+     */
+    public function testGitConfig()
+    {
+        $update = new Update();
+        file_put_contents('log.txt', '');
+        file_put_contents(
+            'record.php',
+            '<?php file_put_contents("log.txt", file_get_contents("log.txt").implode(" ", array_slice($argv, 1))."\n");'
+        );
+        $update->gitProgram = 'php record.php';
+        $setGitConfig = new ReflectionMethod($update, 'setGitConfig');
+        $setGitConfig->setAccessible(true);
+        $setGitConfig->invoke($update, 'foo', null);
+        $setGitConfig->invoke($update, 'bar', 'biz');
+        $output = file_get_contents('log.txt');
+        unlink('log.txt');
+        unlink('record.php');
+
+        $this->assertSame(
+            "config --unset foo\nconfig bar biz\n",
+            $output
+        );
+    }
+
+    /**
+     * @covers ::copyCurrentDirectory
+     * @covers ::getLocalUserConfig
+     * @covers ::cherryPickCommit
      * @covers ::distributePackage
      */
     public function testWithUpToDateDirectory()
@@ -239,6 +270,9 @@ class UpdateTest extends TestCase
     }
 
     /**
+     * @covers ::copyCurrentDirectory
+     * @covers ::getLocalUserConfig
+     * @covers ::cherryPickCommit
      * @covers ::distributePackage
      */
     public function testWithTouchedDirectory()
@@ -349,6 +383,9 @@ class UpdateTest extends TestCase
     }
 
     /**
+     * @covers ::copyCurrentDirectory
+     * @covers ::getLocalUserConfig
+     * @covers ::cherryPickCommit
      * @covers ::distributePackage
      */
     public function testErrors()

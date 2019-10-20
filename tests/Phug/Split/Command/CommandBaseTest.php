@@ -4,12 +4,15 @@ namespace Phug\Tests\Split\Command;
 
 use Nette\Utils\FileSystem;
 use PHPUnit\Framework\TestCase;
+use Phug\Split;
 use Phug\Split\Command\CommandBase;
 use Phug\Split\Command\Copy;
 use Phug\Split\Git\Commit;
 use Phug\Split\Git\Log;
+use Phug\Split\InvalidCli;
 use ReflectionException;
 use ReflectionMethod;
+use SimpleCli\SimpleCli;
 
 /**
  * @coversDefaultClass \Phug\Split\Command\CommandBase
@@ -232,5 +235,29 @@ class CommandBaseTest extends TestCase
         $this->assertDirectoryNotExists($directory);
 
         $this->assertFalse($remove->invoke($copy, "//////\nnot/writable"));
+    }
+
+    /**
+     * @covers ::getSplitCli
+     */
+    public function testCheckCliClass()
+    {
+        $copy = new Copy();
+        $getSplitCli = new ReflectionMethod(CommandBase::class, 'getSplitCli');
+        $getSplitCli->setAccessible(true);
+        $split = new Split();
+        $this->assertSame($split, $getSplitCli->invoke($copy, $split));
+    }
+
+    /**
+     * @covers ::getSplitCli
+     * @covers \Phug\Split\InvalidCli::<public>
+     */
+    public function testCheckCliClassException()
+    {
+        $this->expectException(InvalidCli::class);
+
+        (new Copy())->run(new class extends SimpleCli{
+        });
     }
 }

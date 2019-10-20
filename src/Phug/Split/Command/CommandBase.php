@@ -3,9 +3,12 @@
 namespace Phug\Split\Command;
 
 use Exception;
+use Phug\Split;
 use Phug\Split\Git\Commit;
 use Phug\Split\Git\Log;
+use Phug\Split\InvalidCli;
 use SimpleCli\CommandBase as Command;
+use SimpleCli\SimpleCli;
 
 /**
  * @property-read string $gitProgram Git program path.
@@ -13,6 +16,22 @@ use SimpleCli\CommandBase as Command;
  */
 abstract class CommandBase extends Command
 {
+    /**
+     * Assert the given CLI instance is a Split CLI instance.
+     *
+     * @param SimpleCli $cli
+     *
+     * @return Split
+     */
+    protected function getSplitCli(SimpleCli $cli): Split
+    {
+        if ($cli instanceof Split) {
+            return $cli;
+        }
+
+        throw new InvalidCli($cli);
+    }
+
     /**
      * Escape a value for git command argument or option.
      *
@@ -69,11 +88,11 @@ abstract class CommandBase extends Command
      *
      * @suppressWarnings(PHPMD.StaticAccess)
      *
-     * @return Log|Commit[]
+     * @return Log
      */
     protected function latest($count = 1, string $directory = ''): Log
     {
-        return Log::fromGitLogString($this->git("log --pretty=fuller --max-count=$count $directory"));
+        return Log::fromGitLogString($this->git("log --pretty=fuller --max-count=$count $directory") ?: '');
     }
 
     /**

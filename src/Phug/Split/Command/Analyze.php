@@ -32,7 +32,7 @@ class Analyze extends CommandBase
     /**
      * Last AST of projects.
      *
-     * @var array[]
+     * @var ?iterable<array>
      */
     protected $ast;
 
@@ -43,6 +43,8 @@ class Analyze extends CommandBase
      */
     public function run(SimpleCli $cli): bool
     {
+        $cli = $this->getSplitCli($cli);
+
         return $this->calculatePackagesTree($cli) &&
             $this->dumpPackagesTree($cli, $this->getPackages());
     }
@@ -82,11 +84,12 @@ class Analyze extends CommandBase
             $this->ast = iterator_to_array($this->ast);
         }
 
-        return $this->ast;
+        return $this->ast ?: [];
     }
 
     protected function dumpPackagesTree(Split $cli, iterable $packages, int $level = 0): bool
     {
+        /** @psalm-suppress InvalidArgument */
         $count = count($packages);
 
         foreach ($packages as $index => $package) {

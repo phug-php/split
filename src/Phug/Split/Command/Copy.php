@@ -10,6 +10,8 @@ use SimpleCli\SimpleCli;
 
 /**
  * Copy files from the mono-repository to a sub-package at the current linked revision.
+ *
+ * @psalm-suppress MissingConstructor
  */
 class Copy extends CommandBase
 {
@@ -51,6 +53,8 @@ class Copy extends CommandBase
      */
     public function run(SimpleCli $cli): bool
     {
+        $cli = $this->getSplitCli($cli);
+
         if (!$this->repository) {
             return $cli->error('Please provide an input repository URL.');
         }

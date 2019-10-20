@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15.0",
+        "phan/phan": "^2.3",
         "phpunit/phpunit": "^8.0",
         "phpmd/phpmd": "^2.7",
         "phpstan/phpstan": "^0.11.15",
@@ -51,11 +52,15 @@
         ],
         "style-check": [
             "@phpcs",
+            "@phpcsf",
             "@phpstan",
-            "@phpmd"
+            "@phpmd",
+            "@psalm"
         ],
         "phpunit": "phpunit --verbose",
-        "phpcs": "php-cs-fixer fix -v --diff --dry-run",
+        "phan": "phan",
+        "phpcs": "phpcs",
+        "phpcsf": "php-cs-fixer fix -v --diff --dry-run",
         "phpstan": "phpstan analyse src tests",
         "phpmd": "phpmd src text phpmd.xml",
         "psalm": "psalm"

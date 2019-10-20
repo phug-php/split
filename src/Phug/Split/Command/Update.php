@@ -60,7 +60,7 @@ class Update extends Dist
         $log = $this->latest($max, '.');
         $commits = [];
 
-        foreach ($log as $commit) {
+        foreach ($log as /* @var Commit $commit */ $commit) {
             if ($commit->getHash() === $hash) {
                 return new Log($commits);
             }
@@ -121,6 +121,23 @@ class Update extends Dist
     }
 
     /**
+     * Set a git config.
+     *
+     * @param string $name
+     * @param string|null $value
+     *
+     * @return string|null
+     */
+    protected function setGitConfig(string $name, ?string $value): ?string
+    {
+        $config = $value === null
+            ? "--unset $name"
+            : "$name ".$this->gitEscape($value);
+
+        return $this->git('config '.$config);
+    }
+
+    /**
      * Apply the given commit in the current repository.
      *
      * @param Split  $cli
@@ -169,10 +186,7 @@ class Update extends Dist
         $localUser = $this->getLocalUserConfig();
 
         foreach (['name', 'email'] as $userConfig) {
-            $config = empty($localUser[$userConfig])
-                ? "--unset user.$userConfig"
-                : "user.$userConfig ".$this->gitEscape($localUser[$userConfig]);
-            $this->git('config '.$config);
+            $this->setGitConfig("user.$userConfig", $localUser[$userConfig] ?? null);
         }
     }
 

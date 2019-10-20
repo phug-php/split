@@ -8,6 +8,11 @@ use Phug\Split\Command\Dist;
 use Phug\Split\Command\Update;
 use SimpleCli\SimpleCli;
 
+/**
+ * Class Split: main CLI program to manage split packages in a mono-repository.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
+ */
 class Split extends SimpleCli
 {
     public function getCommands(): array
@@ -20,12 +25,12 @@ class Split extends SimpleCli
         ];
     }
 
-    public function gray()
+    public function gray(): void
     {
         $this->write($this->getColorCode('dark_gray'));
     }
 
-    public function discolor()
+    public function discolor(): void
     {
         $this->write($this->escapeCharacter.'[0m');
     }
@@ -44,7 +49,7 @@ class Split extends SimpleCli
         return false;
     }
 
-    public function chdir($directory): bool
+    public function chdir(string $directory): bool
     {
         if ($directory !== getcwd()) {
             $this->writeLine("cd $directory", 'light_blue');

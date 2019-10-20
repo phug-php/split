@@ -50,7 +50,7 @@ class Dist extends Analyze
      */
     public function run(SimpleCli $cli): bool
     {
-        return $this->distribute($cli);
+        return $this->distribute($this->getSplitCli($cli));
     }
 
     protected function info(Split $cli, string $message): void
