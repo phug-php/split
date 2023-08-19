@@ -123,7 +123,7 @@ class Commit
     /**
      * Return preg_match first captured parenthesis in the commit message by a given regular expression.
      *
-     * @param string $regExp
+     * @param non-empty-string $regExp
      *
      * @return string|null
      */

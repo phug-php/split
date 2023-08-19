@@ -60,6 +60,9 @@ class Dist extends Analyze
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
+     */
     protected function distribute(Split $cli): bool
     {
         if (!$this->calculatePackagesTree($cli)) {
@@ -98,9 +101,9 @@ class Dist extends Analyze
     {
         $cli->chdir($this->directory);
 
-        $name = $package['name'];
+        $name = (string) $package['name'];
 
-        $data = json_decode(file_get_contents(sprintf($this->api, $name)), true);
+        $data = (array) json_decode(file_get_contents(strtr($this->api, ['%s' => $name])), true);
         $config = $data['packages'][$name] ?? [];
         $config = $config['dev-master'] ?? next($config);
 
@@ -116,7 +119,7 @@ class Dist extends Analyze
         $cli->writeLine("git clone $url $directory", 'light_green');
 
         if (strlen($this->gitCredentials)) {
-            [$protocol, $url] = explode('://', $url, 2);
+            [$protocol, $url] = array_pad(explode('://', $url, 2), 2, '');
             $url = $protocol.'://'.$this->gitCredentials.'@'.$url;
         }
 

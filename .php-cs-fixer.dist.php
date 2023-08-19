@@ -3,7 +3,7 @@
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
-$rules = array(
+$rules = [
     '@PSR2' => true,
     'array_syntax' => array(
         'syntax' => 'short',
@@ -22,7 +22,7 @@ $rules = array(
     'ordered_imports' => true,
     'phpdoc_align' => false,
     'phpdoc_indent' => true,
-    'phpdoc_inline_tag' => true,
+    'phpdoc_inline_tag_normalizer' => true,
     'phpdoc_no_access' => true,
     'phpdoc_no_package' => true,
     'phpdoc_order' => true,
@@ -37,15 +37,18 @@ $rules = array(
     'space_after_semicolon' => true,
     'standardize_not_equals' => true,
     'ternary_operator_spaces' => true,
-    'trailing_comma_in_multiline_array' => true,
+    'trailing_comma_in_multiline' => true,
     'trim_array_spaces' => true,
     'unary_operator_spaces' => true,
     'line_ending' => true,
     'blank_line_after_namespace' => true,
-    'no_unused_imports' => true,
-);
+];
 
-return Config::create()->setRules($rules)
-             ->setFinder(Finder::create()->in(__DIR__.'/src'))
-             ->setUsingCache(true)
-             ->setRiskyAllowed(true);
+$config = new Config();
+$config
+    ->setRules($rules)
+    ->setFinder(Finder::create()->in(__DIR__.'/src'))
+    ->setUsingCache(true)
+    ->setRiskyAllowed(true);
+
+return $config;

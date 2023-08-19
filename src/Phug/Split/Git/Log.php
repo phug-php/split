@@ -7,8 +7,11 @@ use ArrayObject;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Traversable;
 
+/**
+ * @implements IteratorAggregate<int, Commit>
+ * @implements ArrayAccess<int, Commit>
+ */
 class Log implements IteratorAggregate, ArrayAccess, Countable
 {
     /**
@@ -23,10 +26,10 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
      *
      * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
      *
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * @return ArrayObject<int, Commit> An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      */
-    public function getIterator()
+    public function getIterator(): ArrayObject
     {
         return new ArrayObject($this->commits);
     }
