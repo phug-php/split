@@ -109,10 +109,10 @@ class DistTest extends TestCase
             'done.',
             "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
             ], $verbose ? [
-                '#[0m#[0;33mgit rev-parse --verify origin/master',
+                '#[0m#[0;33mgit rev-parse --verify origin/main',
                 "#[0m#[0;33m => $hash2",
             ] : [], [
-                '#[0m#[1;32mgit checkout master',
+                '#[0m#[1;32mgit checkout main',
                 "#[0m#[1;35mBuild distributed in {$path}dist",
                 '#[0m',
             ]));

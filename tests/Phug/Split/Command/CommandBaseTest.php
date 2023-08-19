@@ -232,7 +232,10 @@ class CommandBaseTest extends TestCase
         chdir($cwd);
 
         $this->assertTrue($remove->invoke($copy, $directory));
-        $this->assertDirectoryNotExists($directory);
+        $assertDirectoryDoesNotExist = method_exists($this, 'assertDirectoryDoesNotExist')
+            ? 'assertDirectoryDoesNotExist'
+            : 'assertDirectoryNotExists';
+        $this->$assertDirectoryDoesNotExist($directory);
 
         $this->assertFalse($remove->invoke($copy, "//////\nnot/writable"));
     }

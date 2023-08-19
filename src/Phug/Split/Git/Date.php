@@ -4,8 +4,10 @@ namespace Phug\Split\Git;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
 
+/**
+ * @psalm-suppress MethodSignatureMismatch
+ */
 class Date extends DateTimeImmutable
 {
     /**
@@ -15,27 +17,15 @@ class Date extends DateTimeImmutable
      */
     protected $originalString;
 
-    /**
-     * Date constructor.
-     *
-     * @param string $time
-     * @param DateTimeZone $timezone
-     *
-     * @throws Exception
-     */
-    public function __construct($time = null, $timezone = null)
+    public function __construct(?string $time = null, ?DateTimeZone $timezone = null)
     {
         $this->originalString = $time;
 
-        parent::__construct($time, $timezone);
+        parent::__construct($time ?? 'now', $timezone);
     }
 
     public function __toString(): string
     {
-        if ($this->originalString) {
-            return (string) $this->originalString;
-        }
-
-        return $this->format('r') ?: '';
+        return $this->originalString ?? ($this->format('r') ?: '');
     }
 }

@@ -150,7 +150,7 @@ class LogTest extends TestCase
     public function testFromGitLogString()
     {
         $log = Log::fromGitLogString(implode("\n", [
-            'commit 1027388876b5fe905ad39eea13e427bd86a4ab13 (HEAD -> master, origin/master, origin/HEAD)',
+            'commit 1027388876b5fe905ad39eea13e427bd86a4ab13 (HEAD -> master, origin/main, origin/HEAD)',
             'Author:     KyleKatarn <kylekatarnls@gmail.com>',
             'AuthorDate: Wed Sep 18 16:45:43 2019 +0200',
             'Commit:     KyleKatarn <kylekatarnls@gmail.com>',

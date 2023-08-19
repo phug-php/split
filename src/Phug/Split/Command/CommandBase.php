@@ -52,6 +52,8 @@ abstract class CommandBase extends Command
      * @param string|null $redirect redirection suffix (like '2>&1')
      *
      * @return string
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
     {
@@ -90,7 +92,7 @@ abstract class CommandBase extends Command
      *
      * @return Log
      */
-    protected function latest($count = 1, string $directory = ''): Log
+    protected function latest(int $count = 1, string $directory = ''): Log
     {
         return Log::fromGitLogString($this->git("log --pretty=fuller --max-count=$count $directory") ?: '');
     }
@@ -115,6 +117,8 @@ abstract class CommandBase extends Command
      * @throws Exception
      *
      * @return string|null
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function getCurrentLinkedCommitHash(): ?string
     {
@@ -127,6 +131,8 @@ abstract class CommandBase extends Command
      * @param string $fileOrDirectory
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     protected function remove(string $fileOrDirectory): bool
     {

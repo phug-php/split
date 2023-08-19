@@ -27,13 +27,20 @@ class Update extends Dist
     public $noPush = false;
 
     /**
+     * Cache for "user" property from .git/config
+     *
+     * @var array|null
+     */
+    private $localUser = null;
+
+    /**
      * @option m, maximum-commits-replay
      *
      * Maximum number of commits to replay.
      *
-     * @var int
+     * @var int|numeric-string @phan-suppress-current-line PhanUnextractableAnnotationSuffix
      */
-    public $maximumCommitsReplay = 20;
+    public $maximumCommitsReplay = 20; // @phan-suppress-current-line PhanUndeclaredTypeProperty
 
     protected function getPackage(string $directory, array $data): array
     {
@@ -57,7 +64,7 @@ class Update extends Dist
     protected function getReplayLog(Split $cli, string $hash): Log
     {
         $max = $this->maximumCommitsReplay;
-        $log = $this->latest($max, '.');
+        $log = $this->latest((int) $max, '.');
         $commits = [];
 
         foreach ($log as /* @var Commit $commit */ $commit) {
@@ -109,15 +116,13 @@ class Update extends Dist
      */
     protected function getLocalUserConfig(): array
     {
-        static $localUser = null;
-
-        if ($localUser === null) {
-            $localUser = file('.git/config')
+        if ($this->localUser === null) {
+            $this->localUser = file_exists('.git/config')
                 ? parse_ini_file('.git/config', true)['user'] ?? []
                 : [];
         }
 
-        return $localUser;
+        return $this->localUser;
     }
 
     /**

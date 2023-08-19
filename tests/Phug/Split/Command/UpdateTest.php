@@ -249,6 +249,7 @@ class UpdateTest extends TestCase
         }
 
         $path = $directory1.DIRECTORY_SEPARATOR;
+        $branch = trim((string) (shell_exec('git config init.defaultBranch') ?: 'main'));
         $expected = implode("\n", array_merge([
             'vendor/package',
             '#[1;35mBuild vendor/sub-package',
@@ -256,7 +257,7 @@ class UpdateTest extends TestCase
             "#[0m#[1;30mCloning into '{$path}dist/vendor/sub-package'...",
             'done.',
             "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
-            '#[0m#[1;32mgit checkout master',
+            "#[0m#[1;32mgit checkout $branch",
             "#[0m#[1;34mcd $subPackageDirectory",
             '#[0m#[0;32mvendor/sub-package is already up to date.',
             "#[0m#[1;35mBuild distributed in {$path}dist",
@@ -267,6 +268,16 @@ class UpdateTest extends TestCase
         $this->assertSame('D', $contentD);
         $this->assertSame('E', $contentE);
         $this->assertSame('F', $contentF);
+
+        $tester = new class () extends Update {
+            public function getUser(): array
+            {
+                return $this->getLocalUserConfig();
+            }
+        };
+        chdir(__DIR__);
+        $this->assertSame([], $tester->getUser());
+        chdir($cwd);
     }
 
     /**
@@ -355,6 +366,7 @@ class UpdateTest extends TestCase
             @FileSystem::delete($directory);
         }
 
+        $branch = trim((string) (shell_exec('git config init.defaultBranch') ?: 'main'));
         $path = $directory1.DIRECTORY_SEPARATOR;
         $output = preg_replace('/remote: error: [\s\S]+\n\n/', "@@ERROR@@\n", $output);
         $expected = implode("\n", array_merge([
@@ -364,7 +376,7 @@ class UpdateTest extends TestCase
             "#[0m#[1;30mCloning into '{$path}dist/vendor/sub-package'...",
             'done.',
             "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
-            '#[0m#[1;32mgit checkout master',
+            "#[0m#[1;32mgit checkout $branch",
             "#[0m#[1;34mcd $subPackageDirectory",
             "#[0m#[1;34mcd {$path}dist/vendor/sub-package",
             '#[0m#[0;31mPushing vendor/sub-package',

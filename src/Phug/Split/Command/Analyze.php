@@ -63,10 +63,10 @@ class Analyze extends CommandBase
             return $cli->error('Root project directory should contains a '.$this->composerFile.' file.');
         }
 
-        $data = json_decode(file_get_contents($this->composerFile), true);
+        $data = (array) json_decode(file_get_contents($this->composerFile), true);
         $vendorDirectory = ($data['config'] ?? [])['vendor-dir'] ?? 'vendor';
 
-        $cli->writeLine($data['name']);
+        $cli->writeLine((string) $data['name']);
         $this->ast = $this->mapDirectories('.', function (string $path, string $element) use ($vendorDirectory) {
             if ($element === $vendorDirectory) {
                 return null;
@@ -89,8 +89,7 @@ class Analyze extends CommandBase
 
     protected function dumpPackagesTree(Split $cli, iterable $packages, int $level = 0): bool
     {
-        /** @psalm-suppress InvalidArgument */
-        $count = count($packages);
+        $count = is_countable($packages) ? count($packages) : INF;
 
         foreach ($packages as $index => $package) {
             $symbol = $index === $count - 1 ? '└' : '├';

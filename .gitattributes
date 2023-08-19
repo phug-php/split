@@ -6,7 +6,11 @@
 /.codeclimate.yml   export-ignore
 /.styleci.yml       export-ignore
 /.editorconfig      export-ignore
-/ruleset.xml        export-ignore
+/.php_cs.dist.php   export-ignore
+/.phan              export-ignore
+/.github            export-ignore
+/*.cache            export-ignore
+/*.xml              export-ignore
 /*.md               export-ignore
 
 # Auto detect text files and perform LF normalization
