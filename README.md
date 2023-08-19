@@ -1,7 +1,7 @@
 # Phug Split
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/phug/split.svg?style=flat-square)](https://packagist.org/packages/phug/split)
-[![Build Status](https://img.shields.io/travis/phug-php/split/master.svg?style=flat-square)](https://travis-ci.org/phug-php/split)
+[![Latest Stable Version](https://img.shields.io/packagist/v/phug/split.svg)](https://packagist.org/packages/phug/split)
+[![Tests](https://github.com/phug-php/split/actions/workflows/tests.yml/badge.svg)](https://github.com/phug-php/split/actions/workflows/tests.yml)
 
 **Split** is a tool to handle a mono-repo that can be downloaded as single package,
 multiple packages or both.
