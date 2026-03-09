@@ -41,7 +41,7 @@ class Dist extends Analyze
      *
      * @var string
      */
-    public $api = 'https://repo.packagist.org/p/%s.json';
+    public $api = 'https://repo.packagist.org/p2/%s.json';
 
     /**
      * @param Split|SimpleCli $cli
