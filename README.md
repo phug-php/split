@@ -58,7 +58,7 @@ For instance `phug/phug` uses GitHub Actions to trigger it automatically after e
 
 It relies on very few steps:
 - Load PHP via `shivammathur/setup-php@v2`
-- Cache dependencies folder with `actions/cache@v2` to make the job faster (optional)
+- Cache dependencies folder with `actions/cache@v4` to make the job faster (optional)
 - Install `phug/split` with:
   ```shell script
   test -f composer.json && mv composer.json composer.json.save -f
