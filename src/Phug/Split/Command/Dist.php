@@ -78,14 +78,14 @@ class Dist extends Analyze
             return $cli->error('Unable to create output directory.');
         }
 
-        if (!preg_match('/^\* (.+)$/m', $this->git('branch', [], '2>&1') ?: '', $branch)) {
+        if (!preg_match('/^\* (.+)$/m', (string) $this->git('branch', [], '2>&1') ?: '', $branch)) {
             return $cli->error('You must be on a branch in a git repository to run this command.');
         }
 
         $branch = $branch[1];
 
         if (substr($branch, 0, 18) === '(HEAD detached at ') {
-            $branch = trim(explode("\n", $this->git('describe --contains --all HEAD', [], '2>&1') ?: '')[0]);
+            $branch = trim(explode("\n", (string) $this->git('describe --contains --all HEAD', [], '2>&1') ?: '')[0]);
         }
 
         foreach ($this->getPackages() as $package) {

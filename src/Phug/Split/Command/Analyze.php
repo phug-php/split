@@ -16,7 +16,7 @@ class Analyze extends CommandBase
      *
      * Root project directory.
      *
-     * @var string
+     * @var truthy-string|false
      */
     public $directory = '.';
 
@@ -78,6 +78,7 @@ class Analyze extends CommandBase
         return true;
     }
 
+    /** @psalm-suppress RiskyTruthyFalsyComparison */
     protected function getPackages(): iterable
     {
         if ($this->ast instanceof Traversable) {
@@ -121,6 +122,7 @@ class Analyze extends CommandBase
         }
     }
 
+    /** @return array{name: string, directory: string, children: array} */
     protected function getPackage(string $directory, array $data): array
     {
         return [
