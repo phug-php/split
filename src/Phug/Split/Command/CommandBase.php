@@ -53,7 +53,7 @@ abstract class CommandBase extends Command
      *
      * @return string
      *
-     * @psalm-suppress UndefinedThisPropertyFetch
+     * @psalm-suppress UndefinedThisPropertyFetch RiskyTruthyFalsyComparison
      */
     protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
     {

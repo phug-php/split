@@ -16,7 +16,7 @@ class Analyze extends CommandBase
      *
      * Root project directory.
      *
-     * @var truthy-string|false
+     * @var string
      */
     public $directory = '.';
 
@@ -51,11 +51,14 @@ class Analyze extends CommandBase
 
     protected function calculatePackagesTree(Split $cli): bool
     {
-        $this->directory = realpath($this->directory);
+        /** @psalm-var truthy-string|false $directory */
+        $directory = realpath($this->directory);
 
-        if (!$this->directory) {
+        if (!$directory) {
             return $cli->error('Input directory not found.');
         }
+
+        $this->directory = $directory;
 
         $cli->chdir($this->directory);
 
