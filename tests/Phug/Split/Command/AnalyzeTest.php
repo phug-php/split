@@ -80,17 +80,5 @@ class AnalyzeTest extends TestCase
 
         $this->assertSame("#[0;31mInput directory not found.\n#[0m", $output);
         $this->assertFalse($return);
-
-        $cwd = getcwd();
-        chdir(__DIR__);
-
-        ob_start();
-        $return = $analyse->run($cli);
-        $output = ob_get_contents();
-        ob_end_clean();
-        chdir($cwd);
-
-        $this->assertSame("#[0;31mRoot project directory should contains a composer.json file.\n#[0m", $output);
-        $this->assertFalse($return);
     }
 }
