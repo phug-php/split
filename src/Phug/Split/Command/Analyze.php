@@ -66,7 +66,7 @@ class Analyze extends CommandBase
             return $cli->error('Root project directory should contains a '.$this->composerFile.' file.');
         }
 
-        $data = (array) json_decode(file_get_contents($this->composerFile), true);
+        $data = (array) json_decode((string) file_get_contents($this->composerFile), true);
         $vendorDirectory = ($data['config'] ?? [])['vendor-dir'] ?? 'vendor';
 
         $cli->writeLine((string) $data['name']);
@@ -93,7 +93,7 @@ class Analyze extends CommandBase
 
     protected function dumpPackagesTree(Split $cli, iterable $packages, int $level = 0): bool
     {
-        $count = is_countable($packages) ? count($packages) : INF;
+        $count = is_countable($packages) ? count($packages) : 0;
 
         foreach ($packages as $index => $package) {
             $symbol = $index === $count - 1 ? '└' : '├';
@@ -106,7 +106,8 @@ class Analyze extends CommandBase
 
     protected function mapDirectories(string $directory, callable $callback): iterable
     {
-        foreach (scandir($directory) as $element) {
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
+        foreach ((scandir($directory) ?: []) as $element) {
             if (substr($element, 0, 1) === '.') {
                 continue;
             }
@@ -141,7 +142,7 @@ class Analyze extends CommandBase
         $composerPath = $directory.DIRECTORY_SEPARATOR.$this->composerFile;
 
         if (file_exists($composerPath)) {
-            $data = json_decode(file_get_contents($composerPath), true);
+            $data = json_decode((string) file_get_contents($composerPath), true);
             $mainPackage = $this->getPackage($directory, $data);
         }
 

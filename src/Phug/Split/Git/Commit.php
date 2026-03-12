@@ -126,6 +126,10 @@ class Commit
      * @param non-empty-string $regExp
      *
      * @return string|null
+     *
+     * @psalm-return truthy-string|null
+     *
+     * @psalm-suppress LessSpecificReturnStatement, MoreSpecificReturnType
      */
     public function findInMessage(string $regExp): ?string
     {

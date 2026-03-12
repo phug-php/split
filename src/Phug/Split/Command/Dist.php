@@ -72,20 +72,23 @@ class Dist extends Analyze
         $this->remove($this->output);
         $cli->chdir($this->directory);
         @mkdir($this->output, 0777, true);
-        $this->output = @realpath($this->output);
+        /** @psalm-var truthy-string|false $output */
+        $output = @realpath($this->output);
 
-        if (!$this->output) {
+        if (!$output) {
             return $cli->error('Unable to create output directory.');
         }
 
-        if (!preg_match('/^\* (.+)$/m', (string) $this->git('branch', [], '2>&1') ?: '', $branch)) {
+        $this->output = $output;
+
+        if (!preg_match('/^\* (.+)$/m', $this->git('branch', [], '2>&1') ?: '', $branch)) {
             return $cli->error('You must be on a branch in a git repository to run this command.');
         }
 
         $branch = $branch[1];
 
         if (substr($branch, 0, 18) === '(HEAD detached at ') {
-            $branch = trim(explode("\n", (string) $this->git('describe --contains --all HEAD', [], '2>&1') ?: '')[0]);
+            $branch = trim(explode("\n", $this->git('describe --contains --all HEAD', [], '2>&1') ?: '')[0]);
         }
 
         foreach ($this->getPackages() as $package) {
@@ -103,7 +106,7 @@ class Dist extends Analyze
 
         $name = (string) $package['name'];
 
-        $data = (array) json_decode(file_get_contents(strtr($this->api, ['%s' => $name])), true);
+        $data = (array) json_decode((string) file_get_contents(strtr($this->api, ['%s' => $name])), true);
         $config = $data['packages'][$name] ?? [];
         $config = $config['dev-master'] ?? next($config);
 
