@@ -55,7 +55,7 @@ abstract class CommandBase extends Command
      *
      * @psalm-suppress UndefinedThisPropertyFetch RiskyTruthyFalsyComparison
      */
-    protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
+    protected function getGitCommand(string $command, array $options = [], ?string $redirect = null): string
     {
         foreach ($options as $name => $value) {
             $command .= ' --'.$name.'='.$this->gitEscape($value);
@@ -73,7 +73,7 @@ abstract class CommandBase extends Command
      *
      * @return string|null
      */
-    protected function git(string $command, array $options = [], string $redirect = null): ?string
+    protected function git(string $command, array $options = [], ?string $redirect = null): ?string
     {
         $command = $this->getGitCommand($command, $options, $redirect);
 

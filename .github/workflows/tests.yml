@@ -45,6 +45,7 @@ jobs:
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         composer config version 1.9.0
+        composer remove --no-update --dev phan/phan friendsofphp/php-cs-fixer nette/utils phpmd/phpmd phpstan/phpstan squizlabs/php_codesniffer vimeo/psalm
         composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php >= 8.1 && '--ignore-platform-req=php' || '' }} --no-interaction
 
     - name: Prepare git config

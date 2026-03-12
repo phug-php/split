@@ -70,13 +70,13 @@ class Log implements IteratorAggregate, ArrayAccess, Countable
     {
         $commitLogs = preg_split('/[\n\r](?=commit )/', $log);
 
-        return new self(array_map(static function (string $commitLog) {
+        return new self($commitLogs === false ? [] : array_map(static function (string $commitLog) {
             return Commit::fromGitLogString($commitLog);
         }, $commitLogs));
     }
 
     /**
-     * Whether a offset exists.
+     * Whether an offset exists.
      *
      * @link https://php.net/manual/en/arrayaccess.offsetexists.php
      *

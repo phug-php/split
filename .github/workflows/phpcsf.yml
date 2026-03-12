@@ -32,13 +32,15 @@ jobs:
       uses: actions/cache@v4
       with:
         path: vendor
-        key: style-${{ runner.os }}-${{ matrix.setup }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+        key: csf-${{ runner.os }}-${{ matrix.setup }}-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          style-${{ runner.os }}-${{ matrix.setup }}-${{ matrix.php }}-
+          csf-${{ runner.os }}-${{ matrix.setup }}-${{ matrix.php }}-
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress
+      run: |
+        composer remove --no-update --dev phpunit/phpunit phan/phan nette/utils phpmd/phpmd phpstan/phpstan squizlabs/php_codesniffer vimeo/psalm
+        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress
 
     - name: Check style with phpcsf
       run: composer run-script phpcsf

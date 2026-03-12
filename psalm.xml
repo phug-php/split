@@ -32,6 +32,9 @@
         <InternalProperty errorLevel="info" />
         <InternalClass errorLevel="info" />
 
+        <ClassMustBeFinal errorLevel="info" />
+        <MissingOverrideAttribute errorLevel="info" />
+
         <MissingClosureReturnType errorLevel="info" />
         <MissingReturnType errorLevel="info" />
         <MissingPropertyType errorLevel="info" />
