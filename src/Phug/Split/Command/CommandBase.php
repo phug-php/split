@@ -51,6 +51,8 @@ abstract class CommandBase extends Command
      * @param array       $options  CLI git command options
      * @param string|null $redirect redirection suffix (like '2>&1')
      *
+     * @psalm-param truthy-string|null $redirect
+     *
      * @return string
      *
      * @psalm-suppress UndefinedThisPropertyFetch
@@ -61,7 +63,6 @@ abstract class CommandBase extends Command
             $command .= ' --'.$name.'='.$this->gitEscape($value);
         }
 
-        /** @psalm-suppress RiskyTruthyFalsyComparison */
         return $this->gitProgram.' '.$command.($redirect ? ' '.$redirect : '');
     }
 
@@ -71,6 +72,8 @@ abstract class CommandBase extends Command
      * @param string      $command  Git command and mandatory arguments
      * @param array       $options  CLI git command options
      * @param string|null $redirect redirection suffix (like '2>&1')
+     *
+     * @psalm-param truthy-string|null $redirect
      *
      * @return string
      */

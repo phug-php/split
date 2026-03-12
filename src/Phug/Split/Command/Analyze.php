@@ -3,6 +3,7 @@
 namespace Phug\Split\Command;
 
 use Phug\Split;
+use Phug\Split\UnableToListDirectoryItems;
 use SimpleCli\SimpleCli;
 use Traversable;
 
@@ -106,8 +107,13 @@ class Analyze extends CommandBase
 
     protected function mapDirectories(string $directory, callable $callback): iterable
     {
-        /** @psalm-suppress RiskyTruthyFalsyComparison */
-        foreach ((scandir($directory) ?: []) as $element) {
+        $elements = scandir($directory);
+
+        if ($elements === false) {
+            throw new UnableToListDirectoryItems($directory);
+        }
+
+        foreach ($elements as $element) {
             if (substr($element, 0, 1) === '.') {
                 continue;
             }
