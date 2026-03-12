@@ -38,7 +38,9 @@ jobs:
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress
+      run: |
+        composer remove --no-update --dev phpunit/phpunit phan/phan friendsofphp/php-cs-fixer nette/utils phpstan/phpstan squizlabs/php_codesniffer vimeo/psalm
+        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress
 
     - name: Check style with phpmd
       run: composer run-script phpmd

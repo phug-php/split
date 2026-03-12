@@ -45,8 +45,8 @@ class Update extends Dist
     protected function getPackage(string $directory, array $data): array
     {
         return [
-            'name' => $data['name'],
-            'directory' => realpath($directory),
+            'name' => (string) $data['name'],
+            'directory' => (string) realpath($directory),
             'children' => [],
         ];
     }
@@ -184,7 +184,7 @@ class Update extends Dist
 
         if (!$this->noPush) {
             $name = $package['name'];
-            $push = (string) $this->git("push origin $branch", [], '2>&1');
+            $push = $this->git("push origin $branch", [], '2>&1');
             $cli->writeLine("Pushing $name\n".$push, strpos($push, 'error:') === false ? 'light_cyan' : 'red');
         }
 
@@ -215,7 +215,7 @@ class Update extends Dist
         }
 
         $hash = $this->getCurrentLinkedCommitHash();
-        $distributionDirectory = getcwd();
+        $distributionDirectory = (string) getcwd();
         $sourceDirectory = $package['directory'];
 
         $cli->chdir($sourceDirectory);

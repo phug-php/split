@@ -76,7 +76,7 @@ class Commit
                 new Author(trim($matches['commitName']), trim($matches['commitEmail'])),
                 new Date($matches['commitDate']),
             ),
-            preg_replace('/^ {4}/m', '', trim($matches['message'])),
+            (string) preg_replace('/^ {4}/m', '', trim($matches['message'])),
         );
     }
 
@@ -126,6 +126,10 @@ class Commit
      * @param non-empty-string $regExp
      *
      * @return string|null
+     *
+     * @psalm-return truthy-string|null
+     *
+     * @psalm-suppress LessSpecificReturnStatement, MoreSpecificReturnType
      */
     public function findInMessage(string $regExp): ?string
     {

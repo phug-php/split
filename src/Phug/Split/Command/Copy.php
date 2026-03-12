@@ -50,6 +50,8 @@ class Copy extends CommandBase
      * @throws Exception
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     public function run(SimpleCli $cli): bool
     {
@@ -65,7 +67,8 @@ class Copy extends CommandBase
             return $cli->error('Last commit must be linked to a mono-repository commit.');
         }
 
-        $destination = realpath($this->destination);
+        /** @psalm-var truthy-string|false $destination */
+        $destination = @realpath($this->destination);
 
         if (!$destination) {
             return $cli->error('Destination directory "'.$this->destination.'" does not seem to exist.');

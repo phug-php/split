@@ -51,11 +51,13 @@ abstract class CommandBase extends Command
      * @param array       $options  CLI git command options
      * @param string|null $redirect redirection suffix (like '2>&1')
      *
+     * @psalm-param truthy-string|null $redirect
+     *
      * @return string
      *
-     * @psalm-suppress UndefinedThisPropertyFetch RiskyTruthyFalsyComparison
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
-    protected function getGitCommand(string $command, array $options = [], string $redirect = null): string
+    protected function getGitCommand(string $command, array $options = [], ?string $redirect = null): string
     {
         foreach ($options as $name => $value) {
             $command .= ' --'.$name.'='.$this->gitEscape($value);
@@ -71,13 +73,15 @@ abstract class CommandBase extends Command
      * @param array       $options  CLI git command options
      * @param string|null $redirect redirection suffix (like '2>&1')
      *
-     * @return string|null
+     * @psalm-param truthy-string|null $redirect
+     *
+     * @return string
      */
-    protected function git(string $command, array $options = [], string $redirect = null): ?string
+    protected function git(string $command, array $options = [], ?string $redirect = null): string
     {
         $command = $this->getGitCommand($command, $options, $redirect);
 
-        return shell_exec($command);
+        return (string) shell_exec($command);
     }
 
     /**
@@ -117,6 +121,8 @@ abstract class CommandBase extends Command
      * @throws Exception
      *
      * @return string|null
+     *
+     * @psalm-return truthy-string|null
      *
      * @psalm-suppress UndefinedThisPropertyFetch
      */
