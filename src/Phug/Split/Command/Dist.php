@@ -121,7 +121,8 @@ class Dist extends Analyze
 
         $cli->writeLine("git clone $url $directory", 'light_green');
 
-        if (strlen($this->gitCredentials)) {
+        if ($this->gitCredentials !== '') {
+            $cli->writeLine('(using passed --git-credentials)', 'light_green');
             [$protocol, $url] = array_pad(explode('://', $url, 2), 2, '');
             $url = $protocol.'://'.$this->gitCredentials.'@'.$url;
         }
